@@ -45,10 +45,10 @@ jobs:
       - name: Run Linter
         run: pnpm lint
 
-      - name: Check if __tests__ or __mocks__ are not empty
+      - name: Check if __tests__ are not empty
         id: check_folders
         run: |
-          if [ -z "$(find . -type d -name "__tests__" -o -name "__mocks__")" ]; then
+          if [ -z "$(find . -type d -name "__tests__")" ]; then
             echo "No test directories found."
             echo "run_tests=false" >> $GITHUB_ENV
           else
