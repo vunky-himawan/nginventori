@@ -11,3 +11,7 @@
 ## Screenshots (if any)
 
 <!-- Add screenshots or video if there are any changes in the UI -->
+
+## Note
+
+<!-- Add note if any -->
