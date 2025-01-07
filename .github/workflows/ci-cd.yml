@@ -4,21 +4,15 @@ on:
   push:
     branches-ignore:
       - "main"
-    paths:
-      - '**/__tests__/**'
-      - '**/__mocks__/**'
   pull_request:
     branches:
       - develop
-    paths:
-      - '**/__tests__/**'
-      - '**/__mocks__/**'
 
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Cache pnpm modules
         uses: actions/cache@v3
@@ -45,23 +39,16 @@ jobs:
       - name: Security audit
         run: pnpm audit
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
       - name: Run Formatter
         run: pnpm format
 
       - name: Run Linter
         run: pnpm lint
 
-      - name: Check if __tests__ or __mocks__ are not empty
+      - name: Check if __tests__ are not empty
         id: check_folders
         run: |
-          if [ -z "$(find . -type d -name "__tests__" -o -name "__mocks__")" ]; then
+          if [ -z "$(find . -type d -name "__tests__")" ]; then
             echo "No test directories found."
             echo "run_tests=false" >> $GITHUB_ENV
           else
@@ -74,10 +61,17 @@ jobs:
         run: pnpm test
 
       - name: Build Application
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: ${{ secrets.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          DB_URL: ${{ secrets.DB_URL }}
         run: pnpm build
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build
-          path: build/
+          path: .next/
