@@ -1,0 +1,470 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id              BigInt          @id @default(autoincrement())
+  role_id         BigInt          @db.BigInt
+  location_id     BigInt          @db.BigInt
+  department_id   BigInt          @db.BigInt
+  position_id     BigInt          @db.BigInt
+  type_id         BigInt          @db.BigInt
+  head_id         BigInt?         @db.BigInt
+  level_id        BigInt?         @db.BigInt
+  email           String          @unique @db.VarChar(255)
+  password        String?         @db.VarChar(255)
+  name            String          @db.VarChar(255)
+  birth_location  String          @db.VarChar(255)
+  birth_date      DateTime
+  gender          Gender
+  wa_number       String          @db.VarChar(255)
+  nik             String          @unique @db.VarChar(20)
+  living_address  String?         @db.VarChar(255)
+  religion        Religion?
+  marriage_status MarriageStatus?
+  blood_type      BloodType?
+  city            String?         @db.VarChar(255)
+  province        String?         @db.VarChar(255)
+  postal_code     String?         @db.VarChar(255)
+  joined_date     DateTime
+  assessment_date DateTime?
+  resigned_date   DateTime?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  deleted_at      DateTime?
+
+  role       Role             @relation(fields: [role_id], references: [id])
+  location   OfficeLocation   @relation(fields: [location_id], references: [id])
+  department Department       @relation(fields: [department_id], references: [id])
+  position   EmployeePosition @relation(fields: [position_id], references: [id])
+  type       EmployeeType     @relation(fields: [type_id], references: [id])
+  level      Level?           @relation(fields: [level_id], references: [id])
+  head       User?            @relation("Head", fields: [head_id], references: [id])
+
+  subordinates            User[]                       @relation("Head")
+  activityLogs            ActivityLog[]
+  responsibility          InventoryResponsibility[]
+  maintenanceDetails      InventoryMaintenanceDetail[]
+  submissions             AuditSubmission[]
+  inventoryAudits         InventoryAudit[]
+  inventoryReports        InventoryReport[]
+  submittedMonthlyReports InventoryMonthlyReport[]     @relation("SubmittedBy")
+  auditedMonthlyReports   InventoryMonthlyReport[]     @relation("AuditedBy")
+
+  @@map("users")
+}
+
+model ActivityLog {
+  id           BigInt   @id @default(autoincrement())
+  actor_id     BigInt   @db.BigInt
+  log_name     String   @db.VarChar(255)
+  description  String   @db.VarChar(255)
+  subject_type String   @db.VarChar(255)
+  action       Action
+  properties   Json
+  created_at   DateTime @default(now())
+
+  actor User @relation(fields: [actor_id], references: [id])
+
+  @@map("activity_logs")
+}
+
+model Role {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users       User[]
+  permissions RoleHasPermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id   BigInt @id @default(autoincrement())
+  name String @db.VarChar(255)
+
+  roles RoleHasPermission[]
+
+  @@map("permissions")
+}
+
+model RoleHasPermission {
+  role_id       BigInt
+  permission_id BigInt
+
+  role       Role       @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+  @@map("role_has_permissions")
+}
+
+model EmployeePosition {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users User[]
+
+  @@map("employee_positions")
+}
+
+model EmployeeType {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users User[]
+
+  @@map("employee_types")
+}
+
+model Department {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users              User[]
+  inventoryLocations InventoryLocation[]
+
+  @@map("departments")
+}
+
+model Level {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  min_period Int
+  max_period Int
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users User[]
+
+  @@map("levels")
+}
+
+model OfficeLocation {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  users              User[]
+  inventoryLocations InventoryLocation[]
+
+  @@map("office_locations")
+}
+
+model InventoryItem {
+  id                 BigInt    @id @default(autoincrement())
+  location_id        BigInt    @db.BigInt
+  name               String    @db.VarChar(255)
+  description        String?   @db.Text
+  price              Decimal   @db.Decimal(8, 2)
+  total_quantity     Int
+  available_quantity Int
+  loaned_quantity    Int
+  damaged_quantity   Int
+  lost_quantity      Int
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime?
+
+  location InventoryLocation @relation(fields: [location_id], references: [id])
+
+  categories         InventoryItemHasInventoryCategory[]
+  inventoryItemUnits InventoryItemUnit[]
+  responsibilities   InventoryResponsibility[]
+
+  @@map("inventory_items")
+}
+
+model InventoryCategory {
+  id         BigInt    @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  inventoryItems InventoryItemHasInventoryCategory[]
+
+  @@map("inventory_categories")
+}
+
+model InventoryItemHasInventoryCategory {
+  inventory_item_id     BigInt
+  inventory_category_id BigInt
+
+  inventoryItem     InventoryItem     @relation(fields: [inventory_item_id], references: [id])
+  inventoryCategory InventoryCategory @relation(fields: [inventory_category_id], references: [id])
+
+  @@id([inventory_item_id, inventory_category_id])
+  @@map("inventory_items_has_inventory_categories")
+}
+
+model InventoryResponsibility {
+  inventory_item_id   BigInt
+  responsible_user_id BigInt
+
+  inventoryItem   InventoryItem @relation(fields: [inventory_item_id], references: [id])
+  responsibleUser User          @relation(fields: [responsible_user_id], references: [id])
+
+  @@id([inventory_item_id, responsible_user_id])
+  @@map("inventory_responsibilities")
+}
+
+model InventoryMaintenance {
+  id         BigInt            @id @default(autoincrement())
+  start_date DateTime
+  end_date   DateTime
+  note       String?           @db.Text
+  status     MaintenanceStatus
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
+  deleted_at DateTime?
+
+  inventoryMaintenanceDetails InventoryMaintenanceDetail[]
+
+  @@map("inventory_maintenances")
+}
+
+model InventoryItemUnit {
+  id                BigInt                  @id @default(autoincrement())
+  inventory_item_id BigInt                  @db.BigInt
+  serial_number     String                  @unique
+  status            InventoryItemUnitStatus
+  barcode           String?                 @db.VarChar(255)
+  created_at        DateTime                @default(now())
+  updated_at        DateTime                @updatedAt
+  deleted_at        DateTime?
+
+  inventoryItem InventoryItem @relation(fields: [inventory_item_id], references: [id])
+
+  inventoryMaintenanceDetails InventoryMaintenanceDetail[]
+  loanDetails                 InventoryLoanDetail[]
+
+  @@map("inventory_item_units")
+}
+
+model InventoryMaintenanceDetail {
+  inventory_maintenance_id BigInt
+  inventory_item_unit_id   BigInt
+  maintenance_person_id    BigInt
+
+  inventoryMaintenance InventoryMaintenance @relation(fields: [inventory_maintenance_id], references: [id])
+  inventoryItemUnit    InventoryItemUnit    @relation(fields: [inventory_item_unit_id], references: [id])
+  maintenancePerson    User                 @relation(fields: [maintenance_person_id], references: [id])
+
+  @@id([inventory_maintenance_id, inventory_item_unit_id, maintenance_person_id])
+  @@map("inventory_maintenance_details")
+}
+
+model InventoryLocation {
+  id                 BigInt    @id @default(autoincrement())
+  office_location_id BigInt    @db.BigInt
+  department_id      BigInt    @db.BigInt
+  name               String    @db.VarChar(255)
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime?
+
+  location   OfficeLocation @relation(fields: [office_location_id], references: [id])
+  department Department     @relation(fields: [department_id], references: [id])
+
+  inventoryItems InventoryItem[]
+  monthlyReports InventoryMonthlyReport[]
+
+  @@map("inventory_locations")
+}
+
+model InventoryLoan {
+  id             BigInt     @id @default(autoincrement())
+  loan_person_id BigInt     @db.BigInt
+  loan_date      DateTime
+  return_date    DateTime
+  note           String?    @db.Text
+  status         LoanStatus
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+  deleted_at     DateTime?
+
+  loanDetails InventoryLoanDetail[]
+
+  @@map("inventory_loans")
+}
+
+model InventoryLoanDetail {
+  inventory_loan_id      BigInt
+  inventory_item_unit_id BigInt
+
+  inventoryLoan     InventoryLoan     @relation(fields: [inventory_loan_id], references: [id])
+  inventoryItemUnit InventoryItemUnit @relation(fields: [inventory_item_unit_id], references: [id])
+
+  @@id([inventory_loan_id, inventory_item_unit_id])
+  @@map("inventory_loan_details")
+}
+
+model InventoryReport {
+  id                     BigInt     @id @default(autoincrement())
+  inventory_item_unit_id BigInt     @db.BigInt
+  reported_by            BigInt     @db.BigInt
+  report_type            ReportType
+  report                 String?    @db.Text
+  created_at             DateTime   @default(now())
+  updated_at             DateTime   @updatedAt
+  deleted_at             DateTime?
+
+  reporter User @relation(fields: [reported_by], references: [id])
+
+  @@map("inventory_reports")
+}
+
+model InventoryMonthlyReport {
+  id                     BigInt              @id @default(autoincrement())
+  submitted_by           BigInt              @db.BigInt
+  audited_by             BigInt              @db.BigInt
+  inventory_locations_id BigInt              @db.BigInt
+  report_date            DateTime
+  total_items            Int
+  available_items        Int
+  loaned_items           Int
+  damaged_items          Int
+  maintained_items       Int
+  lost_items             Int
+  status                 MonthlyReportStatus
+  created_at             DateTime            @default(now())
+  updated_at             DateTime            @updatedAt
+  deleted_at             DateTime?
+
+  submittedBy        User              @relation("SubmittedBy", fields: [submitted_by], references: [id])
+  auditedBy          User              @relation("AuditedBy", fields: [audited_by], references: [id])
+  inventoryLocations InventoryLocation @relation(fields: [inventory_locations_id], references: [id])
+
+  inventoryAudits InventoryAudit[]
+
+  @@map("inventory_monthly_reports")
+}
+
+model InventoryAudit {
+  id                BigInt      @id @default(autoincrement())
+  monthly_report_id BigInt      @db.BigInt
+  audited_by        BigInt      @db.BigInt
+  audit_date        DateTime
+  findings          String?     @db.Text
+  status            AuditStatus
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+
+  monthlyReport InventoryMonthlyReport @relation(fields: [monthly_report_id], references: [id])
+  auditedBy     User                   @relation(fields: [audited_by], references: [id])
+
+  submissions AuditSubmission[]
+
+  @@map("inventory_audits")
+}
+
+model AuditSubmission {
+  id                 BigInt   @id @default(autoincrement())
+  inventory_audit_id BigInt   @db.BigInt
+  submitted_to       BigInt   @db.BigInt
+  submission_date    DateTime
+  notes              String?  @db.Text
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  inventoryAudit InventoryAudit @relation(fields: [inventory_audit_id], references: [id])
+  submittedTo    User           @relation(fields: [submitted_to], references: [id])
+
+  @@map("audit_submissions")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Religion {
+  ISLAM
+  CHRISTIAN
+  HINDU
+  BUDDHIST
+  OTHER
+}
+
+enum MarriageStatus {
+  MARRIED
+  SINGLE
+  WIDOW
+  WIDOWER
+}
+
+enum BloodType {
+  A
+  B
+  AB
+  O
+  OTHER
+}
+
+enum Action {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+}
+
+enum LoanStatus {
+  REQUEST
+  APPROVED
+  REJECTED
+  CANCELLED
+  RETURNED
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum InventoryItemUnitStatus {
+  AVAILABLE
+  LOANED
+  DAMAGED
+  LOST
+}
+
+enum ReportType {
+  DAMAGE
+  LOSS
+  OTHER
+}
+
+enum MonthlyReportStatus {
+  PENDING
+  AUDITED
+}
+
+enum AuditStatus {
+  APPROVED
+  REJECTED
+  REVIEW_REQUIRED
+}

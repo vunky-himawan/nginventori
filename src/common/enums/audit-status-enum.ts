@@ -1,0 +1,5 @@
+export enum AuditStatus {
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  REVIEW_REQUIRED = "REVIEW_REQUIRED",
+}

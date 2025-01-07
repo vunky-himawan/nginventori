@@ -1,0 +1,49 @@
+name: Pura-pura CI/CD
+
+on:
+  push:
+    branches-ignore:
+      - "main"
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Formatter
+        run: pnpm format
+
+      - name: Run Linter
+        run: pnpm lint
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install
+
+      - name: Run Unit Tests
+        run: pnpm test
+
+      - name: Build Application
+        run: pnpm build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build/

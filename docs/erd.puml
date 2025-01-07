@@ -1,0 +1,307 @@
+@startuml "Simple ERD"
+
+entity "users" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +role_id : UNSIGNED BIGINT <<FK>>
+    +office_location_id : UNSIGNED BIGINT <<FK>>
+    +department_id : UNSIGNED BIGINT <<FK>>
+    +position_id : UNSIGNED BIGINT <<FK>>
+    +type_id : UNSIGNED BIGINT <<FK>>
+    +head_id : UNSIGNED BIGINT <<FK>>
+    +level_id : UNSIGNED BIGINT <<FK>>
+    --
+    email : VARCHAR(255)
+    password : VARCHAR(255)
+    name : VARCHAR(255)
+    birth_location : VARCHAR(255)
+    birth_date : DATE
+    gender : ENUM("MALE", "FEMALE")
+    wa_number : VARCHAR(255)
+    nik : VARCHAR(20)
+    living_address : VARCHAR(255)
+    religion : ENUM("ISLAM", "CHRISTIAN", "HINDU", "BUDDHIST", "OTHER")
+    marriage_status : ENUM('MARRIED', 'SINGLE', 'WIDOW', 'WIDOWER')
+    blood_type : ENUM('A', 'B', 'AB', 'O', 'Other')
+    city : VARCHAR(255)
+    province : VARCHAR(255)
+    postal_code : VARCHAR(255)
+    joined_date : DATE
+    assessment_date : DATE
+    resigned_date : DATE
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "activity_logs" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +actor_id : UNSIGNED BIGINT <<FK>>
+    --
+    log_name : VARCHAR(255)
+    description : VARCHAR(255)
+    subject_type : VARCHAR(255)
+    action : ENUM('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT')
+    properties : JSON
+    created_at : TIMESTAMP
+}
+
+entity "roles" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "permissions" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+}
+
+entity "role_has_permissions" {
+    +role_id : UNSIGNED BIGINT <<FK>>
+    +permission_id : UNSIGNED BIGINT <<FK>>
+}
+
+entity "employee_positions"  {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "employee_types" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "departments" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "levels" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    min_period : TINYINT
+    max_period : TINYINT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "office_locations" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_items" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +location_id : UNSIGNED BIGINT <<FK>>
+    --
+    name : VARCHAR(255)
+    description : TEXT
+    price : DECIMAL(8,2)
+    total_quantity : INTEGER
+    available_quantity : INTEGER
+    loaned_quantity : INTEGER
+    damaged_quantity : INTEGER
+    lost_quantity : INTEGER
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_categories" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_items_has_inventory_categories" {
+    +inventory_item_id : UNSIGNED BIGINT <<FK>>
+    +inventory_category_id : UNSIGNED BIGINT <<FK>>
+}
+
+entity "inventory_reponsibilities" {
+    +inventory_item_id : UNSIGNED BIGINT <<FK>>
+    +responsible_user_id : UNSIGNED BIGINT <<FK>>
+}
+
+entity "inventory_maintenances" {
+    *id : UNSIGNED BIGINT <<PK>>
+    --
+    start_date : TIMESTAMP
+    end_date : TIMESTAMP
+    note : TEXT
+    status : ENUM('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED')
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_maintenance_details" {
+    +inventory_maintenance_id : UNSIGNED BIGINT <<FK>>
+    +inventory_item_unit_id : UNSIGNED BIGINT <<FK>>
+    +maintenance_person_id : UNSIGNED BIGINT <<FK>>
+}
+
+entity "inventory_item_units" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +inventory_item_id : UNSIGNED BIGINT <<FK>>
+    --
+    serial_number : VARCHAR(255) UNIQUE
+    status : ENUM('AVAILABLE', 'LOANED', 'DAMAGED', 'LOST')
+    barcode : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_locations" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +office_location_id : UNSIGNED BIGINT <<FK>>
+    +department_id : UNSIGNED BIGINT <<FK>>
+    --
+    name : VARCHAR(255)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_loans" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +loan_person_id : UNSIGNED BIGINT <<FK>>
+    --
+    quantity : INTEGER
+    loan_date : TIMESTAMP
+    return_date : TIMESTAMP
+    note : TEXT
+    status : ENUM('REQUEST', 'APPROVED', 'REJECTED', 'CANCELLED', 'RETURNED')
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_loan_details" {
+    +inventory_loan_id : UNSIGNED BIGINT <<FK>>
+    +inventory_item_unit_id : UNSIGNED BIGINT <<FK>>
+}
+
+entity "inventory_reports" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +inventory_item_unit_id : UNSIGNED BIGINT <<FK>>
+    +reported_by : UNSIGNED BIGINT <<FK>>
+    --
+    report_type : ENUM('DAMAGE', 'LOSS', 'OTHER')
+    report : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_monthly_reports" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +submitted_by : UNSIGNED BIGINT <<FK>>
+    +audited_by : UNSIGNED BIGINT <<FK>>
+    +inventory_locations_id : UNSIGNED BIGINT <<FK>>
+    --
+    report_date : DATE
+    total_items : INTEGER
+    available_items : INTEGER
+    loaned_items : INTEGER
+    damaged_items : INTEGER
+    maintained_items : INTEGER
+    lost_items : INTEGER
+    status : ENUM('PENDING', 'AUDITED')
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+    deleted_at : TIMESTAMP
+}
+
+entity "inventory_audits" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +monthly_report_id : UNSIGNED BIGINT <<FK>>
+    +audited_by : UNSIGNED BIGINT <<FK>>
+    --
+    audit_date : TIMESTAMP
+    findings : TEXT
+    status : ENUM('APPROVED', 'REJECTED', 'REVIEW_REQUIRED')
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "audit_submissions" {
+    *id : UNSIGNED BIGINT <<PK>>
+    +inventory_audit_id : UNSIGNED BIGINT <<FK>>
+    +submitted_to : UNSIGNED BIGINT <<FK>>
+    --
+    submission_date : TIMESTAMP
+    notes : TEXT
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+/' RELATIONSHIP '/
+"users" ||--|| "roles" : assigned_to
+"users" ||--|| "office_locations" : located_in
+"users" ||--|| "departments" : belongs_to
+"users" ||--|| "employee_positions" : holds
+"users" ||--|| "employee_types" : categorized_as
+"users" ||--o| "users" : leads_to
+"users" ||--o| "levels" : placed_at
+"users" ||--o{ "activity_logs" : logs
+
+"roles" ||--o{ "role_has_permissions" : includes
+"permissions" ||--o{ "role_has_permissions" : assigned_to
+
+"inventory_items" ||--o{ "inventory_items_has_inventory_categories" : categorized_by
+"inventory_categories" ||--o{ "inventory_items_has_inventory_categories" : includes
+
+"inventory_items" ||--o{ "inventory_item_units" : consists_of
+"inventory_items" ||--o{ "inventory_reponsibilities" : assigned_to
+"inventory_items" ||--|| "inventory_locations" : located_in
+
+"inventory_item_units" ||--o{ "inventory_maintenance_details" : on_maintenance
+"inventory_item_units" ||--o{ "inventory_loan_details" : on_loan
+
+"users" ||--o{ "inventory_maintenance_details" : maintains
+"inventory_maintenances" ||--o{ "inventory_maintenance_details" : on
+
+"users" ||--o{ "inventory_loans" : loans
+"inventory_loans" ||--o{ "inventory_loan_details" : on
+
+"users" ||--o{ "inventory_reports" : reports
+"inventory_reports" ||--o{ "inventory_item_units" : on
+
+"inventory_monthly_reports" ||--|| "users" : audited_by
+"inventory_monthly_reports" ||--|| "users" : submitted_by
+"inventory_monthly_reports" ||--|| "inventory_locations" : located_in
+
+"inventory_audits" ||--|| "users" : audited_by
+"inventory_audits" ||--|| "inventory_monthly_reports" : audited
+
+"audit_submissions" ||--|| "users" : submitted_to
+"audit_submissions" ||--|| "inventory_audits" : audited
+
+@enduml
