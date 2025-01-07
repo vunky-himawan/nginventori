@@ -2,10 +2,6 @@
 
 <!-- Add issue reference related to the changes made in this PR -->
 
-## Description
-
-<!-- Describe the purpose and changes made in this PR -->
-
 ## What's done?
 
 <!-- Example -->
