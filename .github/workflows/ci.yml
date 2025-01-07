@@ -1,20 +1,14 @@
 name: Pura-pura CI/CD
 
 on:
-  push:
-    branches-ignore:
-      - "main"
   pull_request:
     branches:
       - develop
-  # pull_request:
-  #   branches:
-  #     - develop
-  #     - main
-  # push:
-  #   branches:
-  #     - develop
-  #     - main
+      - main
+  push:
+    branches:
+      - develop
+      - main
 
 jobs:
   build:
