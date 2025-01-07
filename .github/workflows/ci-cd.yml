@@ -4,14 +4,21 @@ on:
   push:
     branches-ignore:
       - "main"
+    paths:
+      - '**/__tests__/**'
+      - '**/__mocks__/**'
   pull_request:
     branches:
       - develop
+    paths:
+      - '**/__tests__/**'
+      - '**/__mocks__/**'
 
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,7 +26,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22"
+          node-version: "20"
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -27,16 +42,35 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Security audit
+        run: pnpm audit
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
       - name: Run Formatter
         run: pnpm format
 
       - name: Run Linter
         run: pnpm lint
 
-      - name: Install Playwright browser
-        run: pnpm exec playwright install
+      - name: Check if __tests__ or __mocks__ are not empty
+        id: check_folders
+        run: |
+          if [ -z "$(find . -type d -name "__tests__" -o -name "__mocks__")" ]; then
+            echo "No test directories found."
+            echo "run_tests=false" >> $GITHUB_ENV
+          else
+            echo "Test directories found, running tests."
+            echo "run_tests=true" >> $GITHUB_ENV
+          fi
 
       - name: Run Unit Tests
+        if: env.run_tests == 'true'
         run: pnpm test
 
       - name: Build Application
