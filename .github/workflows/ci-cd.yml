@@ -39,6 +39,14 @@ jobs:
       - name: Security audit
         run: pnpm audit
 
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
       - name: Run Formatter
         run: pnpm format
 
