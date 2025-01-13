@@ -4,6 +4,8 @@ import "./globals.css";
 import { TanstackProvider } from "@/libs/tanstack-query/provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { StrictMode } from "react";
+import { Toaster } from "./_components/ui/sonner";
+import { TooltipProvider } from "./_components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +32,10 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StrictMode>
           <ClerkProvider allowedRedirectOrigins={["http://localhost:3000"]}>
-            <TanstackProvider>{children}</TanstackProvider>
+            <TooltipProvider>
+              <TanstackProvider>{children}</TanstackProvider>
+              <Toaster />
+            </TooltipProvider>
           </ClerkProvider>
         </StrictMode>
       </body>
