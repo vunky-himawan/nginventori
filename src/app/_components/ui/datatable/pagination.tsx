@@ -9,6 +9,7 @@ import { useResponsive } from "@/hooks/use-responsive";
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
+  onPaginationChange: (page: number, perPage: number) => void;
 }
 
 /**
@@ -22,23 +23,13 @@ interface DataTablePaginationProps<TData> {
 const DataTablePagination = <TData,>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
+  onPaginationChange,
 }: DataTablePaginationProps<TData>) => {
-  // Dekonstruksi metode dan properti dari objek tabel
-  const {
-    getState,
-    getPageCount,
-    getCanPreviousPage,
-    getCanNextPage,
-    getCoreRowModel,
-    previousPage,
-    nextPage,
-    setPageSize,
-    setPageIndex,
-  } = table;
+  const { getState, getPageCount, getCoreRowModel } = table;
 
   // Mendapatkan indeks halaman dan ukuran halaman dari state tabel
   const { pageIndex, pageSize } = getState().pagination;
-  const currentPage = pageIndex + 1; // Halaman saat ini (dimulai dari 1)
+  const currentPage = pageIndex; // Halaman saat ini (dimulai dari 1)
   const pageCount = getPageCount(); // Total jumlah halaman
   const rowCount = getCoreRowModel().rows.length; // Total jumlah baris data
 
@@ -87,7 +78,7 @@ const DataTablePagination = <TData,>({
     const newPage = isFirstEllipsis
       ? Math.max(1, currentPage - jumpAmount)
       : Math.min(pageCount, currentPage + jumpAmount);
-    setPageIndex(newPage - 1);
+    onPaginationChange(newPage, pageSize);
   };
 
   /**
@@ -102,7 +93,7 @@ const DataTablePagination = <TData,>({
         <Button
           variant={currentPage === page ? "default" : "outline"}
           className="h-8 w-8"
-          onClick={() => setPageIndex(page - 1)}
+          onClick={() => onPaginationChange(page, pageSize)}
         >
           {page}
         </Button>
@@ -121,7 +112,10 @@ const DataTablePagination = <TData,>({
       {/* Bagian untuk memilih ukuran halaman */}
       <div className="flex w-full items-center justify-center gap-3 lg:w-max">
         <div className="w-20">
-          <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => onPaginationChange(currentPage, Number(value))}
+          >
             <SelectTrigger>
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
@@ -143,7 +137,12 @@ const DataTablePagination = <TData,>({
           <PaginationContent className="max-lg:flex max-lg:flex-wrap">
             {/* Tombol kembali ke halaman pertama */}
             <PaginationItem>
-              <Button variant="outline" className="h-8 w-8" onClick={() => table.setPageIndex(0)}>
+              <Button
+                variant="outline"
+                className="h-8 w-8"
+                onClick={() => onPaginationChange(1, pageSize)}
+                disabled={currentPage === 1}
+              >
                 <ChevronsLeft className="h-4 w-4" />
               </Button>
             </PaginationItem>
@@ -152,8 +151,8 @@ const DataTablePagination = <TData,>({
               <Button
                 variant="outline"
                 className="h-8 w-8"
-                onClick={previousPage}
-                disabled={!getCanPreviousPage()}
+                onClick={() => onPaginationChange(currentPage - 1, pageSize)}
+                disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -169,8 +168,8 @@ const DataTablePagination = <TData,>({
               <Button
                 variant="outline"
                 className="h-8 w-8"
-                onClick={nextPage}
-                disabled={!getCanNextPage()}
+                onClick={() => onPaginationChange(currentPage + 1, pageSize)}
+                disabled={currentPage === pageCount}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -180,7 +179,8 @@ const DataTablePagination = <TData,>({
               <Button
                 variant="outline"
                 className="h-8 w-8"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                onClick={() => onPaginationChange(pageCount, pageSize)}
+                disabled={currentPage === pageCount}
               >
                 <ChevronsRight className="h-4 w-4" />
               </Button>

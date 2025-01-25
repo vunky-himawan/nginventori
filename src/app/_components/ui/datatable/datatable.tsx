@@ -1,31 +1,88 @@
 "use client";
 
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../table";
 import DataTablePagination from "./pagination";
+import { Input } from "../input";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import { TFilterItem } from "@/types/datatable/filter";
+import { Button } from "../button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  search?: string;
+  placeholderSearch?: string;
+  searchStyle?: React.CSSProperties | string;
+  filterComponents?: TFilterItem[];
+  handleChange: {
+    onFilterChange: (newFilters: Record<string, string | number | boolean | undefined>) => void;
+    onSortingChange: (sortKey: string, order: "asc" | "desc") => void;
+    onPaginationChange: (page: number, perPage: number) => void;
+    onSearch: (searchTerm: string) => void;
+  };
+  pagination: {
+    page: string | number | true;
+    per_page: string | number | true;
+  };
 }
 
-const Datatable = <TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) => {
+const Datatable = <TData, TValue>({
+  columns,
+  placeholderSearch,
+  searchStyle,
+  handleChange,
+  filterComponents,
+  search,
+  pagination,
+}: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
-    data,
+    data: [],
     columns,
+    pageCount: 5,
+    state: {
+      columnFilters: [],
+      sorting: [],
+      pagination: { pageIndex: pagination.page as number, pageSize: pagination.per_page as number },
+    },
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
   });
+
+  const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    console.log(e.target);
+  };
 
   return (
     <div className="w-full">
-      <div className="rounded-md">
+      <div className="flex flex-col gap-5 rounded-md">
+        <div className="flex flex-col justify-between gap-3 md:flex-row">
+          <div className="order-2 md:order-1">
+            {filterComponents && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline">Filters</Button>
+                </PopoverTrigger>
+                <PopoverContent>{/* TODO: Add filter components */}</PopoverContent>
+              </Popover>
+            )}
+          </div>
+          <div className="order-1 md:order-2">
+            {search !== undefined && (
+              <Input
+                value={search}
+                style={searchStyle && typeof searchStyle === "object" ? searchStyle : undefined}
+                className={`${typeof searchStyle === "string" ? searchStyle : ""}`}
+                onChange={(e) => handleChange?.onSearch(e.target.value)}
+                placeholder={placeholderSearch || "Search..."}
+              />
+            )}
+          </div>
+        </div>
+
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -64,7 +121,7 @@ const Datatable = <TData, TValue>({ columns, data }: DataTableProps<TData, TValu
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <DataTablePagination table={table} />
+        <DataTablePagination onPaginationChange={handleChange?.onPaginationChange} table={table} />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TanstackProvider } from "@/libs/tanstack-query/provider";
 import { ClerkProvider } from "@clerk/nextjs";
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { Toaster } from "./_components/ui/sonner";
 import { TooltipProvider } from "./_components/ui/tooltip";
 
@@ -29,16 +29,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <StrictMode>
-          <ClerkProvider allowedRedirectOrigins={["http://localhost:3000"]}>
-            <TooltipProvider>
-              <TanstackProvider>{children}</TanstackProvider>
-              <Toaster />
-            </TooltipProvider>
-          </ClerkProvider>
-        </StrictMode>
-      </body>
+      <StrictMode>
+        <Suspense fallback={<div>Loading...</div>}>
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <ClerkProvider allowedRedirectOrigins={["http://localhost:3000"]}>
+              <TooltipProvider>
+                <TanstackProvider>{children}</TanstackProvider>
+                <Toaster />
+              </TooltipProvider>
+            </ClerkProvider>
+          </body>
+        </Suspense>
+      </StrictMode>
     </html>
   );
 }

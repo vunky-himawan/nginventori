@@ -132,20 +132,30 @@ async function main() {
       type,
     });
 
+    const roles = Array.from({ length: 20 }, (_, i) => ({
+      name: `Role ${i + 1}`,
+      created_at: new Date(),
+      updated_at: new Date(),
+    }));
+
+    for (const role of roles) {
+      await prisma.role.create({
+        data: role,
+      });
+    }
+
     console.log("✅ Seed completed successfully");
     return { ...users, role };
   } catch (error) {
     console.error("❌ Seed failed:");
     console.error(error);
     throw error;
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-main()
-  .catch((e) => {
-    console.error("Failed to seed database:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch((e) => {
+  console.error("Failed to seed database:", e);
+  process.exit(1);
+});
