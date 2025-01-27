@@ -59,7 +59,7 @@ const checkIsActive = (href: string, item: TMenu, mainNav = false) => {
 export function AppSidebar() {
   const pathName = usePathname();
 
-  const { data, isLoading } = useGetPermission();
+  const { data } = useGetPermission();
 
   const filteredMenus = useMemo(() => {
     if (!data?.permissions) {
@@ -72,7 +72,7 @@ export function AppSidebar() {
         hasCommonElements(menuItem.permissions, data.permissions),
       ),
     })).filter((menuGroup) => menuGroup.menus.length > 0);
-  }, [data, isLoading]);
+  }, [data]);
 
   return (
     <Sidebar collapsible="icon" variant="floating" aria-label="Main Sidebar">

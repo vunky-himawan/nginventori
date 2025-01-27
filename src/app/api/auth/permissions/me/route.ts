@@ -15,7 +15,7 @@ export const GET = async () => {
     const data = await getUserWithPermissionsAction(userId);
 
     return new SuccessResponse(data, "User permissions retrieved");
-  } catch (error) {
+  } catch {
     return new InternalServerErrorException("Internal Server Error");
   }
 };

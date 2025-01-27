@@ -27,7 +27,7 @@ export const Guard = ({ children, allowedPermissions, type }: GuardProps) => {
         router.replace("/denied");
       }
     }
-  }, [isAllowed, type, router, isLoading]);
+  }, [isAllowed, type, router, isLoading, allowedPermissions, data]);
 
   if (type === "component" && !isAllowed) {
     return null;
