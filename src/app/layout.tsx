@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TanstackProvider } from "@/libs/tanstack-query/provider";
 import { ClerkProvider } from "@clerk/nextjs";
-import { StrictMode, Suspense } from "react";
 import { Toaster } from "./_components/ui/sonner";
 import { TooltipProvider } from "./_components/ui/tooltip";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,18 +29,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <StrictMode>
-        <Suspense fallback={<div>Loading...</div>}>
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-            <ClerkProvider allowedRedirectOrigins={["http://localhost:3000"]}>
-              <TooltipProvider>
-                <TanstackProvider>{children}</TanstackProvider>
-                <Toaster />
-              </TooltipProvider>
-            </ClerkProvider>
-          </body>
-        </Suspense>
-      </StrictMode>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ClerkProvider allowedRedirectOrigins={["http://localhost:3000"]}>
+          <TooltipProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+              <TanstackProvider>{children}</TanstackProvider>
+            </Suspense>
+            <Toaster />
+          </TooltipProvider>
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

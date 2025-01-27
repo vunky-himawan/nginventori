@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { permissionsSeeder } from "./permissions.seeder";
 
 const prisma = new PrismaClient();
 
@@ -51,13 +52,28 @@ async function seedEmployeeType() {
 }
 
 async function seedRole() {
-  return prisma.role.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      name: "Administrator",
-    },
+  await permissionsSeeder();
+
+  const permissions = await prisma.permission.findMany();
+
+  let role = await prisma.role.findFirst({
+    where: { name: "Administrator" },
   });
+
+  if (!role) {
+    role = await prisma.role.create({
+      data: {
+        name: "Administrator",
+        permissions: {
+          create: permissions.map((permission) => ({
+            permission_id: permission.id,
+          })),
+        },
+      },
+    });
+  }
+
+  return role;
 }
 
 async function seedUsers(dependencies: SeedDependencies) {
@@ -69,6 +85,7 @@ async function seedUsers(dependencies: SeedDependencies) {
     create: {
       email: "head@company.com",
       password: "hashedPassword",
+      clerk_id: "user_1rFSRFbbTMZ8ziZE5BioGIyq6Ye",
       name: "Head User",
       birth_location: "Jakarta",
       birth_date: new Date("1980-01-01"),
@@ -91,6 +108,7 @@ async function seedUsers(dependencies: SeedDependencies) {
     update: {},
     create: {
       email: "testing@testing.com",
+      clerk_id: "user_2rFSRFbbTMZ8ziZE5BioGIyq6Ye",
       password: "akuntesting123",
       name: "Testing User",
       birth_location: "Jakarta",
@@ -145,6 +163,7 @@ async function main() {
     }
 
     console.log("✅ Seed completed successfully");
+
     return { ...users, role };
   } catch (error) {
     console.error("❌ Seed failed:");

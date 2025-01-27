@@ -1,6 +1,7 @@
 import { TBreadcrumb } from "@/app/_components/types/breadcrumb-types";
 import { Breadcrumbs } from "./breadcrumb";
 import { Card } from "../../ui/card";
+import { Loading } from "../../ui/loading/main";
 
 interface PageProps {
   topActions?: React.ReactNode;
@@ -9,9 +10,14 @@ interface PageProps {
   description?: string;
   subTitle?: string;
   children: React.ReactNode;
+  isLoading?: boolean;
 }
 
-const Page = ({ title, description, breadcrumbs, topActions, children }: PageProps) => {
+const Page = ({ title, description, breadcrumbs, topActions, children, isLoading }: PageProps) => {
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className="flex flex-col py-2">
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}

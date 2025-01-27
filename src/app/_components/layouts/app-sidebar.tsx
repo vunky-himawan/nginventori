@@ -18,6 +18,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { TMenu, TNavbarMenu } from "@/app/_components/types/navbar-types";
 import { usePathname } from "next/navigation";
+import { PERMISSIONS } from "@/common/enums/permissions";
+import { useGetPermission } from "@/hooks/data/use-get-permission";
+import { useMemo } from "react";
+import { hasCommonElements } from "@/utils/function";
 
 const NavBarMenus: TNavbarMenu[] = [
   {
@@ -25,21 +29,21 @@ const NavBarMenus: TNavbarMenu[] = [
     menus: [
       {
         icon: <LayoutDashboard />,
-        label: "Dashboard Superadmin",
-        path: "/dashboard/superadmin",
-        permissions: [],
+        label: "Dashboard",
+        path: "/dashboard",
+        permissions: [PERMISSIONS.DASHBOARD_ADMIN],
       },
       {
         icon: <LayoutDashboard />,
-        label: "Dashboard Admin",
-        path: "/dashboard/admin",
-        permissions: [],
+        label: "Dashboard Employee",
+        path: "/dashboard/employee",
+        permissions: [PERMISSIONS.DASHBOARD_EMPLOYEE],
       },
       {
         icon: <Settings />,
         label: "Roles",
         path: "/roles",
-        permissions: [],
+        permissions: [PERMISSIONS.VIEW_ROLES],
       },
     ],
   },
@@ -55,7 +59,20 @@ const checkIsActive = (href: string, item: TMenu, mainNav = false) => {
 export function AppSidebar() {
   const pathName = usePathname();
 
-  /* TODO: Add filter menu by user permissions */
+  const { data, isLoading } = useGetPermission();
+
+  const filteredMenus = useMemo(() => {
+    if (!data?.permissions) {
+      return [];
+    }
+
+    return NavBarMenus.map((menuGroup) => ({
+      ...menuGroup,
+      menus: menuGroup.menus.filter((menuItem) =>
+        hasCommonElements(menuItem.permissions, data.permissions),
+      ),
+    })).filter((menuGroup) => menuGroup.menus.length > 0);
+  }, [data, isLoading]);
 
   return (
     <Sidebar collapsible="icon" variant="floating" aria-label="Main Sidebar">
@@ -70,7 +87,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {NavBarMenus.map((menu: TNavbarMenu) =>
+        {filteredMenus.map((menu: TNavbarMenu) =>
           menu.label ? (
             <SidebarGroup key={menu.label}>
               <SidebarGroupLabel>{menu.label}</SidebarGroupLabel>

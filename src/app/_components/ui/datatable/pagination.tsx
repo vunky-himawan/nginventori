@@ -38,8 +38,8 @@ const DataTablePagination = <TData,>({
   const pageRange = !isLg ? 1 : 2; // Jarak halaman yang ditampilkan pada navigasi
 
   // Menghitung rentang data yang ditampilkan pada halaman saat ini
-  const rangeStart = pageIndex * pageSize + 1;
-  const rangeEnd = Math.min((pageIndex + 1) * pageSize, rowCount);
+  const rangeStart = rowCount === 0 ? 0 : pageIndex * pageSize + 1;
+  const rangeEnd = rowCount === 0 ? 0 : Math.min((pageIndex + 1) * pageSize, rowCount);
 
   /**
    * Menghasilkan daftar nomor halaman yang akan ditampilkan.

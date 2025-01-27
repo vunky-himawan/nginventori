@@ -27,6 +27,7 @@ const prismaWithExtensions = prisma
     createSoftDeleteExtension({
       models: {
         User: true,
+        Role: true,
       },
       defaultConfig: {
         field: "deleted_at",

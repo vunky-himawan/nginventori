@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import superjson from "superjson";
 
 interface SuccessResponseData<T> {
   data: T;
@@ -16,7 +17,7 @@ export class SuccessResponse<T> extends NextResponse {
       data,
     };
 
-    super(JSON.stringify(responseBody), {
+    super(superjson.stringify(responseBody), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

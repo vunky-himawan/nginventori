@@ -7,8 +7,17 @@ import { Input } from "../input";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { TFilterItem } from "@/types/datatable/filter";
 import { Button } from "../button";
+import { useMemo } from "react";
 
 interface DataTableProps<TData, TValue> {
+  source?: {
+    data?: TData[];
+    meta?: {
+      current?: number;
+      pageSize?: number;
+      total?: number;
+    };
+  };
   columns: ColumnDef<TData, TValue>[];
   search?: string;
   placeholderSearch?: string;
@@ -21,12 +30,13 @@ interface DataTableProps<TData, TValue> {
     onSearch: (searchTerm: string) => void;
   };
   pagination: {
-    page: string | number | true;
-    per_page: string | number | true;
+    page: number;
+    per_page: number;
   };
 }
 
 const Datatable = <TData, TValue>({
+  source,
   columns,
   placeholderSearch,
   searchStyle,
@@ -35,26 +45,23 @@ const Datatable = <TData, TValue>({
   search,
   pagination,
 }: DataTableProps<TData, TValue>) => {
+  const pageCount = useMemo(() => {
+    if (!source?.meta?.total || !pagination.per_page) return 0;
+    return Math.ceil(source.meta.total / pagination.per_page);
+  }, [source?.meta?.total, pagination.per_page]);
+
   const table = useReactTable({
-    data: [],
+    data: source?.data || [],
     columns,
-    pageCount: 5,
+    pageCount: pageCount,
     state: {
-      columnFilters: [],
-      sorting: [],
-      pagination: { pageIndex: pagination.page as number, pageSize: pagination.per_page as number },
+      pagination: { pageIndex: pagination.page, pageSize: pagination.per_page },
     },
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     manualFiltering: true,
     manualSorting: true,
   });
-
-  const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    console.log(e.target);
-  };
 
   return (
     <div className="w-full">

@@ -1,11 +1,15 @@
 "use server";
 
-import { getUserByEmailAction } from "@/server/users/actions/user-action";
+import {
+  getUserByEmailAction,
+  getUserWithPermissionsAction,
+} from "@/server/users/actions/user-action";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import NotFoundException from "@/errors/NotFoundException";
 import InternalServerErrorException from "@/errors/InternalServerErrorException";
 import UnauthorizedException from "@/errors/UnauthorizedException";
 import { RedirectResponse } from "@/responses/redirect-response";
+import { PERMISSIONS } from "@/common/enums/permissions";
 
 const client = await clerkClient();
 
@@ -31,6 +35,14 @@ export const GET = async () => {
       return RedirectResponse.temporary(
         `${process.env.NEXT_PUBLIC_APP_URL}?error=email-not-registered`,
       );
+    }
+
+    const userWithPermissions = await getUserWithPermissionsAction(userId);
+
+    if (userWithPermissions.permissions.includes(PERMISSIONS.DASHBOARD_ADMIN)) {
+      return RedirectResponse.permanent(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);
+    } else if (userWithPermissions.permissions.includes(PERMISSIONS.DASHBOARD_EMPLOYEE)) {
+      return RedirectResponse.permanent(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/employee`);
     }
 
     return RedirectResponse.permanent(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);
