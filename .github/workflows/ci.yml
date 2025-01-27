@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -58,6 +59,7 @@ jobs:
             next.config.js
 
   opensource-security:
+    if: ${{ github.event_name == 'push' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +83,6 @@ jobs:
           args: --severity-threshold=high
 
   code-security:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -115,6 +116,7 @@ jobs:
         run: pnpm test
 
   release:
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
     needs:
       - opensource-security
       - code-security
@@ -133,6 +135,7 @@ jobs:
         run: echo "Deploying to production"
 
   opensource-monitor:
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
     needs: release
     runs-on: ubuntu-latest
     steps:
