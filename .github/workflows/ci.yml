@@ -56,6 +56,20 @@ jobs:
             public/
             package.json
             next.config.js
+      
+      - name: Notify on Success
+        if: ${{ success() }}
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="✅ Code security check sukses pada branch ${{ github.ref_name }}."
+
+      - name: Notify on Failure
+        if: ${{ failure() }}
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="❌ Code security check gagal pada branch ${{ github.ref_name }}."
 
   code-security:
     needs: build
@@ -132,6 +146,20 @@ jobs:
 
       - name: Deploy
         run: echo "Deploying to production"
+
+      - name: Notify on Success
+        if: ${{ success() }}
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="✅ Deployment sukses pada branch ${{ github.ref_name }}."
+
+      - name: Notify on Failure
+        if: ${{ failure() }}
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="❌ Deployment gagal pada branch ${{ github.ref_name }}."
 
   opensource-monitor:
     if: ${{ github.event_name == 'push' }}
