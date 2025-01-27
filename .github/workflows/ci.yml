@@ -57,29 +57,6 @@ jobs:
             package.json
             next.config.js
 
-  opensource-security:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Security audit
-        run: pnpm audit
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
   code-security:
     needs: build
     runs-on: ubuntu-latest
@@ -114,7 +91,31 @@ jobs:
         if: env.run_tests == 'true'
         run: pnpm test
 
+  opensource-security:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Security audit
+        run: pnpm audit
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
   release:
+    if: ${{ github.event_name == 'push' }}
     needs:
       - opensource-security
       - code-security
@@ -133,6 +134,7 @@ jobs:
         run: echo "Deploying to production"
 
   opensource-monitor:
+    if: ${{ github.event_name == 'push' }}
     needs: release
     runs-on: ubuntu-latest
     steps:

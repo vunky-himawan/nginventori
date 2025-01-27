@@ -14,12 +14,6 @@ CREATE TYPE "BloodType" AS ENUM ('A', 'B', 'AB', 'O', 'OTHER');
 CREATE TYPE "Action" AS ENUM ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT');
 
 -- CreateEnum
-CREATE TYPE "LeaveMutation" AS ENUM ('LEAVE_APPLICATION', 'OVERTIME', 'UNDERTIME');
-
--- CreateEnum
-CREATE TYPE "LeaveStatus" AS ENUM ('REQUEST', 'APPROVED', 'REJECTED');
-
--- CreateEnum
 CREATE TYPE "LoanStatus" AS ENUM ('REQUEST', 'APPROVED', 'REJECTED', 'CANCELLED', 'RETURNED');
 
 -- CreateEnum
@@ -40,6 +34,7 @@ CREATE TYPE "AuditStatus" AS ENUM ('APPROVED', 'REJECTED', 'REVIEW_REQUIRED');
 -- CreateTable
 CREATE TABLE "users" (
     "id" BIGSERIAL NOT NULL,
+    "clerk_id" VARCHAR(255) NOT NULL,
     "role_id" BIGINT NOT NULL,
     "location_id" BIGINT NOT NULL,
     "department_id" BIGINT NOT NULL,
@@ -350,6 +345,9 @@ CREATE TABLE "audit_submissions" (
 
     CONSTRAINT "audit_submissions_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_clerk_id_key" ON "users"("clerk_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
