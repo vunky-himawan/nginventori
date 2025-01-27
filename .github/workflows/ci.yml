@@ -56,20 +56,32 @@ jobs:
             public/
             package.json
             next.config.js
-      
+
       - name: Notify on Success
         if: ${{ success() }}
         run: |
-          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="✅ Code security check sukses pada branch ${{ github.ref_name }}."
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+              -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+              -d text="✅ Success on branch '${{ github.head_ref }}' with commit message '${{ github.event.pull_request.title }}' when pull request '${{ github.event.pull_request.number }}' in destination branch '${{ github.base_ref }}'. You can merge right now!"
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+              -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+              -d text="✅ Success on branch '${{ github.ref_name }}' with commit message '${{ github.event.head_commit.message }}' in destination branch '${{ github.ref_name }}'."
+          fi
 
       - name: Notify on Failure
         if: ${{ failure() }}
         run: |
-          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="❌ Code security check gagal pada branch ${{ github.ref_name }}."
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+              -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+              -d text="❌ Build failed on branch '${{ github.head_ref }}' with pull request '${{ github.event.pull_request.number }}' targeting branch '${{ github.base_ref }}'. Please review the logs and fix the issue."
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="❌ Build failed on branch '${{ github.ref_name }}'. Please review the logs and fix the issue."
+          fi
 
   code-security:
     needs: build
@@ -151,15 +163,15 @@ jobs:
         if: ${{ success() }}
         run: |
           curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="✅ Deployment sukses pada branch ${{ github.ref_name }}."
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="✅ Deployment success on branch '${{ github.ref_name }}' with commit message '${{ github.event.head_commit.message }}'."
 
       - name: Notify on Failure
         if: ${{ failure() }}
         run: |
           curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="❌ Deployment gagal pada branch ${{ github.ref_name }}."
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="❌ Deployment failed on branch '${{ github.ref_name }}'. Please check the logs for details."
 
   opensource-monitor:
     if: ${{ github.event_name == 'push' }}
