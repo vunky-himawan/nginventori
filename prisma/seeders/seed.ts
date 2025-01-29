@@ -12,40 +12,64 @@ interface SeedDependencies {
 }
 
 async function seedLocation() {
-  return prisma.officeLocation.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
+  const location = await prisma.officeLocation.findFirst({
+    where: { name: "Jakarta", deleted_at: null },
+  });
+
+  if (location) {
+    return location;
+  }
+
+  return prisma.officeLocation.create({
+    data: {
       name: "Jakarta",
     },
   });
 }
 
 async function seedDepartment() {
-  return prisma.department.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
+  const department = await prisma.department.findFirst({
+    where: { name: "Engineering", deleted_at: null },
+  });
+
+  if (department) {
+    return department;
+  }
+
+  return prisma.department.create({
+    data: {
       name: "Engineering",
     },
   });
 }
 
 async function seedPosition() {
-  return prisma.employeePosition.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
+  const position = await prisma.employeePosition.findFirst({
+    where: { name: "Software Engineer", deleted_at: null },
+  });
+
+  if (position) {
+    return position;
+  }
+
+  return prisma.employeePosition.create({
+    data: {
       name: "Software Engineer",
     },
   });
 }
 
 async function seedEmployeeType() {
-  return prisma.employeeType.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
+  const type = await prisma.employeeType.findFirst({
+    where: { name: "Full-time", deleted_at: null },
+  });
+
+  if (type) {
+    return type;
+  }
+
+  return prisma.employeeType.create({
+    data: {
       name: "Full-time",
     },
   });
@@ -149,18 +173,6 @@ async function main() {
       position,
       type,
     });
-
-    const roles = Array.from({ length: 20 }, (_, i) => ({
-      name: `Role ${i + 1}`,
-      created_at: new Date(),
-      updated_at: new Date(),
-    }));
-
-    for (const role of roles) {
-      await prisma.role.create({
-        data: role,
-      });
-    }
 
     console.log("✅ Seed completed successfully");
 

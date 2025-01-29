@@ -83,6 +83,31 @@ jobs:
             -d text="❌ Build failed on branch '${{ github.ref_name }}'. Please review the logs and fix the issue."
           fi
 
+  notify_review:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Code Review
+        run: |
+          REVIEWER="${{ github.event.review.user.login }}"
+          REVIEW_STATE="${{ github.event.review.state }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+
+          if [[ -z "$REVIEWER" ]]; then
+            MESSAGE="📝 A code review has been submitted for PR #${PR_NUMBER}. However, the reviewer is not specified."
+          elif [[ -z "$PR_BODY" ]]; then
+            MESSAGE="📝 Code review submitted by '${REVIEWER}' on PR #${PR_NUMBER} (${PR_TITLE}). No description provided."
+          else
+            MESSAGE="📝 Code review submitted by '${REVIEWER}' on PR #${PR_NUMBER}. \nTitle: '${PR_TITLE}' \nDescription: '${PR_BODY}' \nReview State: '${REVIEW_STATE}' \nPR Link: ${PR_URL}"
+          fi
+
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="$MESSAGE"
+
   code-security:
     needs: build
     runs-on: ubuntu-latest

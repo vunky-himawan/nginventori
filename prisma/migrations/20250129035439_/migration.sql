@@ -356,7 +356,37 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE UNIQUE INDEX "users_nik_key" ON "users"("nik");
 
 -- CreateIndex
+CREATE INDEX "roles_name_deleted_at_idx" ON "roles"("name", "deleted_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "permissions_name_key" ON "permissions"("name");
+
+-- CreateIndex
+CREATE INDEX "employee_positions_name_deleted_at_idx" ON "employee_positions"("name", "deleted_at");
+
+-- CreateIndex
+CREATE INDEX "employee_types_name_deleted_at_idx" ON "employee_types"("name", "deleted_at");
+
+-- CreateIndex
+CREATE INDEX "departments_name_deleted_at_idx" ON "departments"("name", "deleted_at");
+
+-- CreateIndex
+CREATE INDEX "levels_name_deleted_at_idx" ON "levels"("name", "deleted_at");
+
+-- CreateIndex
+CREATE INDEX "office_locations_name_deleted_at_idx" ON "office_locations"("name", "deleted_at");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "inventory_items_location_id_name_key" ON "inventory_items"("location_id", "name");
+
+-- CreateIndex
+CREATE INDEX "inventory_categories_name_deleted_at_idx" ON "inventory_categories"("name", "deleted_at");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "inventory_item_units_serial_number_key" ON "inventory_item_units"("serial_number");
+
+-- CreateIndex
+CREATE INDEX "inventory_locations_name_deleted_at_idx" ON "inventory_locations"("name", "deleted_at");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

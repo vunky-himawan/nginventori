@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TanstackProvider } from "@/libs/tanstack-query/provider";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "./_components/ui/sonner";
 import { TooltipProvider } from "./_components/ui/tooltip";
 import { Suspense } from "react";
+import { ToastContainer } from "react-toastify";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +35,7 @@ export default function RootLayout({
             <Suspense fallback={<div>Loading...</div>}>
               <TanstackProvider>{children}</TanstackProvider>
             </Suspense>
-            <Toaster />
+            <ToastContainer />
           </TooltipProvider>
         </ClerkProvider>
       </body>

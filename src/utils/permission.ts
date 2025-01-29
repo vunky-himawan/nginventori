@@ -1,4 +1,9 @@
+import { auth } from "@clerk/nextjs/server";
 import { hasAllElements, hasCommonElements } from "./function";
+import UnauthorizedException from "@/errors/UnauthorizedException";
+import InternalServerErrorException from "@/errors/InternalServerErrorException";
+import { getUserWithPermissionsAction } from "@/server/users/actions/user-action";
+import ForbiddenException from "@/errors/ForbiddenException";
 
 type TPermissionChecker = {
   permissions: Array<string>;
@@ -58,4 +63,30 @@ export const checkPermission = ({
   if (!userPermissions) return false;
   const hasPermission = hasCommonElements(permissions, userPermissions);
   return hasPermission && customCondition;
+};
+
+export const serverCheckPermissions = async (allowedPermissions: string[]) => {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return new UnauthorizedException("Unauthorized");
+  }
+
+  try {
+    const user = await getUserWithPermissionsAction(userId);
+
+    if (!user) {
+      return new UnauthorizedException("Unauthorized");
+    }
+
+    const hasPermission = hasCommonElements(allowedPermissions, user.permissions);
+
+    if (!hasPermission) {
+      return new ForbiddenException("Forbidden");
+    }
+
+    return true;
+  } catch {
+    return new InternalServerErrorException("Internal Server Error");
+  }
 };

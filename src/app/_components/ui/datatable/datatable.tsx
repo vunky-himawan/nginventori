@@ -8,6 +8,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { TFilterItem } from "@/types/datatable/filter";
 import { Button } from "../button";
 import { useMemo } from "react";
+import { LoaderCircle } from "lucide-react";
+import { Badge } from "../badge";
 
 interface DataTableProps<TData, TValue> {
   source?: {
@@ -19,6 +21,7 @@ interface DataTableProps<TData, TValue> {
     };
   };
   columns: ColumnDef<TData, TValue>[];
+  isLoading?: boolean;
   search?: string;
   placeholderSearch?: string;
   searchStyle?: React.CSSProperties | string;
@@ -37,6 +40,7 @@ interface DataTableProps<TData, TValue> {
 
 const Datatable = <TData, TValue>({
   source,
+  isLoading,
   columns,
   placeholderSearch,
   searchStyle,
@@ -55,7 +59,10 @@ const Datatable = <TData, TValue>({
     columns,
     pageCount: pageCount,
     state: {
-      pagination: { pageIndex: pagination.page, pageSize: pagination.per_page },
+      pagination: {
+        pageIndex: pagination.page,
+        pageSize: pagination.per_page,
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -106,29 +113,46 @@ const Datatable = <TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
+          {isLoading ? (
+            <TableBody>
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  <Badge variant={"outline"} className="gap-2">
+                    <LoaderCircle className="animate-spin text-primary" />
+                    <p className="font-light">Loading ....</p>
+                  </Badge>
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
+            </TableBody>
+          ) : (
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          )}
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <DataTablePagination onPaginationChange={handleChange?.onPaginationChange} table={table} />
+        <DataTablePagination
+          total={source?.meta?.total || 0}
+          onPaginationChange={handleChange?.onPaginationChange}
+          table={table}
+        />
       </div>
     </div>
   );

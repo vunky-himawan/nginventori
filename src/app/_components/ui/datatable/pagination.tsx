@@ -10,6 +10,7 @@ interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
   onPaginationChange: (page: number, perPage: number) => void;
+  total: number;
 }
 
 /**
@@ -22,24 +23,23 @@ interface DataTablePaginationProps<TData> {
  */
 const DataTablePagination = <TData,>({
   table,
+  total,
   pageSizeOptions = [10, 20, 30, 40, 50],
   onPaginationChange,
 }: DataTablePaginationProps<TData>) => {
-  const { getState, getPageCount, getCoreRowModel } = table;
+  const { getState, getPageCount } = table;
 
   // Mendapatkan indeks halaman dan ukuran halaman dari state tabel
   const { pageIndex, pageSize } = getState().pagination;
   const currentPage = pageIndex; // Halaman saat ini (dimulai dari 1)
   const pageCount = getPageCount(); // Total jumlah halaman
-  const rowCount = getCoreRowModel().rows.length; // Total jumlah baris data
 
   // Hook untuk mendeteksi ukuran layar (responsiveness)
   const { isLg } = useResponsive();
   const pageRange = !isLg ? 1 : 2; // Jarak halaman yang ditampilkan pada navigasi
 
   // Menghitung rentang data yang ditampilkan pada halaman saat ini
-  const rangeStart = rowCount === 0 ? 0 : pageIndex * pageSize + 1;
-  const rangeEnd = rowCount === 0 ? 0 : Math.min((pageIndex + 1) * pageSize, rowCount);
+  const start = pageIndex * pageSize - pageSize + 1;
 
   /**
    * Menghasilkan daftar nomor halaman yang akan ditampilkan.
@@ -132,7 +132,7 @@ const DataTablePagination = <TData,>({
 
       {/* Bagian untuk menampilkan informasi rentang data dan kontrol paginasi */}
       <div className="flex w-full flex-col items-center justify-center gap-3 lg:w-min lg:flex-row">
-        <p className="lg:w-max lg:flex-1">{`${rangeStart}-${rangeEnd} of ${rowCount} items`}</p>
+        <p className="lg:w-max lg:flex-1">{`${start}-${total} of ${total} items`}</p>
         <Pagination className="lg:flex-1">
           <PaginationContent className="max-lg:flex max-lg:flex-wrap">
             {/* Tombol kembali ke halaman pertama */}

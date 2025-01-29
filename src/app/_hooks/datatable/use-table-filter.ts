@@ -24,6 +24,8 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
   const [filters, setFilters] =
     useState<Record<string, string | number | boolean | undefined>>(parseSearchParams());
 
+  const [searchInput, setSearchInput] = useState<string | undefined>(filters.search?.toString());
+
   const updateUrl = useCallback(
     (newParams: Record<string, string | number | boolean | undefined>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -43,7 +45,8 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
   );
 
   const debouncedSearch = useRef(
-    debounce((value) => {
+    debounce((value: string) => {
+      setFilters((prev) => ({ ...prev, search: value }));
       updateUrl({ search: value, page: 1, per_page: 10 });
     }, 500),
   ).current;
@@ -63,8 +66,8 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
         updateUrl({ page, per_page: perPage });
       },
       onSearch: (searchTerm: string) => {
-        setFilters((prev) => ({ ...prev, search: searchTerm }));
-        debouncedSearch(searchTerm);
+        setSearchInput(searchTerm); // Update nilai input pencarian sementara
+        debouncedSearch(searchTerm); // Mulai debounce
       },
     }),
     [updateUrl, debouncedSearch],
@@ -72,6 +75,7 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
 
   useEffect(() => {
     setFilters(parseSearchParams());
+    setSearchInput(parseSearchParams().search?.toString());
   }, [searchParams, parseSearchParams]);
 
   useEffect(() => {
@@ -88,5 +92,5 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
     [filters],
   );
 
-  return { handleChange, pagination, filters };
+  return { handleChange, pagination, filters, searchInput };
 };
