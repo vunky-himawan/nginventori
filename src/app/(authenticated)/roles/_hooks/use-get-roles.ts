@@ -12,7 +12,7 @@ type RoleResponse = {
 
 export const useGetRoles = (queryParams: TIndexQueryParam) => {
   return useQuery<RoleResponse>({
-    queryKey: ["roles"],
+    queryKey: ["roles", queryParams],
     queryFn: async () => {
       const response = await api.get("/roles", {
         params: queryParams,

@@ -41,8 +41,7 @@ export const getRoleAction = async (id: number) => {
     }
 
     return role;
-  } catch (error) {
-    console.log(error);
+  } catch {
     throw new InternalServerErrorException("Internal server error");
   }
 };
@@ -61,13 +60,10 @@ export const updateRoleAction = async (id: number, data: TCreateOrUpdateRoleVali
 
 export const deleteRoleAction = async (id: number) => {
   try {
-    console.log("[DEBUG] actions/role.action.ts: deleteRoleAction: id: ", id);
     await serverCheckPermissions([PERMISSIONS.DELETE_ROLE]);
-    console.log("[DEBUG] actions/role.action.ts: deleteRoleAction: permissions granted");
 
     return await deleteRole(id);
   } catch (error) {
-    console.log("[DEBUG] actions/role.action.ts: deleteRoleAction: error: ", error);
     if (error instanceof BadRequestException) {
       throw new BadRequestException(error.message);
     }
