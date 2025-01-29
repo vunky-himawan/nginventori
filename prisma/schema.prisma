@@ -86,11 +86,12 @@ model Role {
   permissions RoleHasPermission[]
 
   @@map("roles")
+  @@index([name, deleted_at])
 }
 
 model Permission {
   id   BigInt @id @default(autoincrement())
-  name String @db.VarChar(255)
+  name String @unique @db.VarChar(255)
 
   roles RoleHasPermission[]
 
@@ -118,6 +119,7 @@ model EmployeePosition {
   users User[]
 
   @@map("employee_positions")
+  @@index([name, deleted_at])
 }
 
 model EmployeeType {
@@ -130,6 +132,7 @@ model EmployeeType {
   users User[]
 
   @@map("employee_types")
+  @@index([name, deleted_at])
 }
 
 model Department {
@@ -143,6 +146,7 @@ model Department {
   inventoryLocations InventoryLocation[]
 
   @@map("departments")
+  @@index([name, deleted_at])
 }
 
 model Level {
@@ -157,6 +161,7 @@ model Level {
   users User[]
 
   @@map("levels")
+  @@index([name, deleted_at])
 }
 
 model OfficeLocation {
@@ -170,6 +175,7 @@ model OfficeLocation {
   inventoryLocations InventoryLocation[]
 
   @@map("office_locations")
+  @@index([name, deleted_at])
 }
 
 model InventoryItem {
@@ -194,6 +200,7 @@ model InventoryItem {
   responsibilities   InventoryResponsibility[]
 
   @@map("inventory_items")
+  @@unique([location_id, name])
 }
 
 model InventoryCategory {
@@ -206,6 +213,7 @@ model InventoryCategory {
   inventoryItems InventoryItemHasInventoryCategory[]
 
   @@map("inventory_categories")
+  @@index([name, deleted_at])
 }
 
 model InventoryItemHasInventoryCategory {
@@ -292,6 +300,7 @@ model InventoryLocation {
   monthlyReports InventoryMonthlyReport[]
 
   @@map("inventory_locations")
+  @@index([name, deleted_at])
 }
 
 model InventoryLoan {

@@ -14,7 +14,6 @@ const globalThisWithPrisma = globalThis as typeof globalThis & {
 
 const prisma = globalThisWithPrisma.prisma ?? prismaClientSingleton();
 
-// Pastikan urutan extends yang benar
 const prismaWithExtensions = prisma
   .$extends(
     pagination({

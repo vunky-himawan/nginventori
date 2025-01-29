@@ -13,7 +13,13 @@ export async function permissionsSeeder() {
     { name: "view-roles" },
   ];
 
-  await prisma.permission.createMany({
-    data: permissions,
-  });
+  for (const permission of permissions) {
+    await prisma.permission.upsert({
+      where: {
+        name: permission.name,
+      },
+      update: {},
+      create: permission,
+    });
+  }
 }

@@ -21,7 +21,7 @@ const Page = ({ title, description, breadcrumbs, topActions, children, isLoading
   return (
     <div className="flex flex-col py-2">
       {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-col">
           <div className="flex gap-3">
             {title && <h1 className="text-3xl font-bold">{title}</h1>}
