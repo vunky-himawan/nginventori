@@ -5,7 +5,7 @@ import {
   deleteRoleAction,
   getRoleAction,
   updateRoleAction,
-} from "@/server/roles/actions/role.action";
+} from "@/server/roles/actions/role-action";
 import { NextRequest } from "next/server";
 
 // GET /roles/:id

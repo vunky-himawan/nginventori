@@ -1,7 +1,7 @@
 import BadRequestException from "@/errors/BadRequestException";
 import InternalServerErrorException from "@/errors/InternalServerErrorException";
 import { SuccessResponse } from "@/responses/success-response";
-import { createRoleAction, getRolesAction } from "@/server/roles/actions/role.action";
+import { createRoleAction, getRolesAction } from "@/server/roles/actions/role-action";
 import { transformRequest } from "@/utils/transform-request";
 import { NextRequest } from "next/server";
 
