@@ -55,7 +55,7 @@ npx prisma migrate dev
 
 # or
 
-pnpm db:migrate:dev
+pnpm db:migrate
 ```
 
 6. Run migrations:
@@ -65,7 +65,7 @@ npx prisma migrate deploy
 
 # or
 
-pnpm db:migrate
+pnpm db:push
 ```
 
 7. Generate types:
@@ -78,13 +78,19 @@ npx prisma generate
 pnpm db:generate
 ```
 
-8. Run the development server:
+8. Run seeder:
+
+```bash
+pnpm db:seed
+```
+
+9. Run the development server:
 
 ```bash
 pnpm dev
 ```
 
-9. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+10. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
 ## Project Structure
 

@@ -171,7 +171,7 @@ CREATE TABLE "inventory_items" (
     "location_id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
-    "price" DECIMAL(8,2) NOT NULL,
+    "price" DECIMAL(10,2) NOT NULL,
     "total_quantity" INTEGER NOT NULL,
     "available_quantity" INTEGER NOT NULL,
     "loaned_quantity" INTEGER NOT NULL,
