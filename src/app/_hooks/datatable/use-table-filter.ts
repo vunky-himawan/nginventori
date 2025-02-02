@@ -29,17 +29,27 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
   const updateUrl = useCallback(
     (newParams: Record<string, string | number | boolean | undefined>) => {
       const params = new URLSearchParams(searchParams.toString());
+
+      params.forEach((_, key) => {
+        if (!(key in newParams) && !["page", "per_page"].includes(key)) {
+          params.delete(key);
+        }
+      });
+
       Object.entries(newParams).forEach(([key, value]) => {
         if (value === undefined || value === "") {
           params.delete(key);
         } else {
+          console.log(key, value);
           const stringValue = String(value);
           if (validateQueryParam(stringValue)) {
             params.set(key, encodeQueryParam(stringValue));
           }
         }
       });
-      router.replace(`${pathname}?${params.toString()}`);
+
+      const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      router.replace(newUrl);
     },
     [pathname, router, searchParams],
   );
@@ -53,7 +63,8 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
 
   const handleChange = useMemo(
     () => ({
-      onFilterChange: (newFilters: Record<string, string | number | boolean | undefined>) => {
+      onFilterChange: (newFilters: Record<string, string | number | undefined>) => {
+        console.log("newFilters", newFilters);
         setFilters((prev) => ({ ...prev, ...newFilters }));
         updateUrl({ ...newFilters, page: 1, per_page: 10 });
       },
@@ -66,8 +77,8 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
         updateUrl({ page, per_page: perPage });
       },
       onSearch: (searchTerm: string) => {
-        setSearchInput(searchTerm); // Update nilai input pencarian sementara
-        debouncedSearch(searchTerm); // Mulai debounce
+        setSearchInput(searchTerm);
+        debouncedSearch(searchTerm);
       },
     }),
     [updateUrl, debouncedSearch],
