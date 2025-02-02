@@ -2,6 +2,7 @@ import BadRequestException from "@/errors/BadRequestException";
 import InternalServerErrorException from "@/errors/InternalServerErrorException";
 import { SuccessResponse } from "@/responses/success-response";
 import { createRoleAction, getRolesAction } from "@/server/roles/actions/role-action";
+import { TIndexQueryParam } from "@/types/index-query-param";
 import { transformRequest } from "@/utils/transform-request";
 import { NextRequest } from "next/server";
 
@@ -10,7 +11,9 @@ export const GET = async (req: NextRequest) => {
   try {
     const searchParams = req.nextUrl.searchParams;
 
-    const roles = await getRolesAction(transformRequest(searchParams));
+    const transformedRequest = transformRequest<TIndexQueryParam>(searchParams);
+
+    const roles = await getRolesAction(transformedRequest);
 
     return new SuccessResponse(roles, "Success");
   } catch {

@@ -1,45 +1,113 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
+import { useMemo, useState, useEffect } from "react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./command";
+import { Button } from "./button";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 interface YearPickerProps {
   onChange?: (year: number) => void;
   placeholder?: string;
   className?: string;
-  key?: string;
   minYear?: number;
   maxYear?: number;
-  disabled?: boolean;
-  required?: boolean;
+  defaultValue?: number;
 }
 
 const YearPicker = ({
   onChange,
   placeholder,
-  key,
-  minYear = 1900,
+  minYear = new Date().getFullYear() - 10,
   maxYear = new Date().getFullYear(),
-  disabled,
-  required,
+  defaultValue,
 }: YearPickerProps) => {
-  const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => i + minYear);
+  const [open, setOpen] = useState(false);
+  const [searchYear, setSearchYear] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string | null>(
+    defaultValue ? defaultValue.toString() : null,
+  );
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedYear(defaultValue.toString());
+    }
+  }, [defaultValue]);
+
+  const years = useMemo(() => {
+    const years = [];
+
+    for (let i = minYear; i <= maxYear; i++) {
+      years.push(i);
+    }
+
+    return years;
+  }, [minYear, maxYear]);
 
   return (
-    <Select
-      onValueChange={(value) => onChange?.(Number(value))}
-      key={key}
-      required={required}
-      disabled={disabled}
-    >
-      <SelectTrigger className="w-full">
-        <SelectValue placeholder={`${placeholder || "Select a year"}...`} />
-      </SelectTrigger>
-      <SelectContent>
-        {years.map((year) => (
-          <SelectItem key={year} value={year.toString()}>
-            {year}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          onClick={() => {
+            setOpen(!open);
+            setSearchYear("");
+          }}
+          className={"w-full justify-start bg-transparent text-left font-normal"}
+        >
+          {selectedYear || placeholder || "Select a year..."}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Command>
+          <CommandInput
+            placeholder="Search..."
+            value={searchYear}
+            onValueChange={(value) => {
+              setSearchYear(value);
+            }}
+            onInput={(e) => {
+              e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "");
+            }}
+          />
+          <CommandList>
+            <CommandEmpty
+              className="mt-1 flex cursor-pointer select-none items-center gap-2 rounded-sm bg-accent px-2 py-1.5 text-sm"
+              onClick={() => {
+                if (searchYear) {
+                  setSelectedYear(searchYear);
+                  setOpen(false);
+                  onChange?.(Number(searchYear));
+                }
+              }}
+            >
+              {searchYear}
+            </CommandEmpty>
+            <CommandGroup>
+              {years
+                .filter((year) => year.toString().includes(searchYear))
+                .map((year) => (
+                  <CommandItem
+                    key={year}
+                    value={year.toString()}
+                    onSelect={() => {
+                      setSelectedYear(year.toString());
+                      setOpen(false);
+                      onChange?.(year);
+                    }}
+                  >
+                    {year}
+                  </CommandItem>
+                ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
 

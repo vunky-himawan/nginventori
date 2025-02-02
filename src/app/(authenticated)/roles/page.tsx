@@ -13,9 +13,11 @@ import { makePagination, makeSource } from "@/utils/datatables/misc";
 import { ColumnDef } from "@tanstack/react-table";
 import { Role } from "@prisma/client";
 import { Eye, Pencil, Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DialogDelete } from "@/app/_components/ui/dialog/delete-dialog";
 import { useDeleteRole } from "./_hooks/use-delete-role";
+import { TFilterItem } from "@/types/datatable/filter";
+import { Badge } from "@/app/_components/ui/badge";
 
 const RolesPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -30,7 +32,12 @@ const RolesPage = () => {
     search: filters.search?.toString() || "",
     sort: "name",
     order: "asc",
+    withTrashed: Number(filters.withTrashed),
   });
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -39,11 +46,24 @@ const RolesPage = () => {
       cell: ({ row }) => <div className="w-[100px]">{row.getValue("name")}</div>,
     },
     {
-      accessorKey: "created_at",
-      header: "Created At",
-      cell: ({ row }) => (
-        <div className="w-max">{new Date(row.getValue("created_at")).toLocaleString()}</div>
-      ),
+      accessorKey: "permissions",
+      header: "Permissions",
+      cell: ({ row }) => {
+        const permissions: string[] = row.getValue("permissions");
+        return (
+          <div className="flex flex-wrap gap-2">
+            {permissions.map((permission) => (
+              <Badge
+                variant={"outline"}
+                key={permission}
+                className="border border-green-300 !bg-green-100 font-medium text-green-500"
+              >
+                {permission}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       id: "actions",
@@ -88,6 +108,25 @@ const RolesPage = () => {
     },
   ];
 
+  const filterComponents: TFilterItem[] = [
+    {
+      key: "withTrashed",
+      label: "With Trashed",
+      name: "withTrashed",
+      type: "select",
+      placeholder: "Search by select...",
+      defaultValue:
+        Number(filters.withTrashed) < 0 || Number(filters.withTrashed) > 2
+          ? 0
+          : filters.withTrashed,
+      options: [
+        { label: "Default", value: "0" },
+        { label: "With Trashed", value: "1" },
+        { label: "Only Trashed", value: "2" },
+      ],
+    },
+  ];
+
   return (
     <Guard allowedPermissions={[PERMISSIONS.VIEW_ROLES]} type="page">
       <Page
@@ -104,6 +143,7 @@ const RolesPage = () => {
           handleChange={handleChange}
           placeholderSearch="Search roles..."
           pagination={pagination}
+          filterComponents={filterComponents}
         />
         <DialogDelete
           title="Delete Role"

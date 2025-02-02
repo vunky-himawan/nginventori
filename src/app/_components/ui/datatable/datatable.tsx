@@ -4,12 +4,11 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../table";
 import DataTablePagination from "./pagination";
 import { Input } from "../input";
-import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { TFilterItem } from "@/types/datatable/filter";
-import { Button } from "../button";
 import { useMemo } from "react";
 import { LoaderCircle } from "lucide-react";
 import { Badge } from "../badge";
+import Filters from "./filters";
 
 interface DataTableProps<TData, TValue> {
   source?: {
@@ -27,7 +26,7 @@ interface DataTableProps<TData, TValue> {
   searchStyle?: React.CSSProperties | string;
   filterComponents?: TFilterItem[];
   handleChange: {
-    onFilterChange: (newFilters: Record<string, string | number | boolean | undefined>) => void;
+    onFilterChange: (newFilters: Record<string, string | number | undefined>) => void;
     onSortingChange: (sortKey: string, order: "asc" | "desc") => void;
     onPaginationChange: (page: number, perPage: number) => void;
     onSearch: (searchTerm: string) => void;
@@ -76,12 +75,7 @@ const Datatable = <TData, TValue>({
         <div className="flex flex-col justify-between gap-3 md:flex-row">
           <div className="order-2 md:order-1">
             {filterComponents && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline">Filters</Button>
-                </PopoverTrigger>
-                <PopoverContent>{/* TODO: Add filter components */}</PopoverContent>
-              </Popover>
+              <Filters onFilterChange={handleChange?.onFilterChange} filters={filterComponents} />
             )}
           </div>
           <div className="order-1 md:order-2">

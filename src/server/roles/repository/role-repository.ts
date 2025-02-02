@@ -11,6 +11,17 @@ export const getRoles = async (
 ): Promise<TPaginationResponse<Role[]>> => {
   const [data, meta] = await prisma.role
     .paginate({
+      include: {
+        permissions: {
+          select: {
+            permission: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
       where: {
         ...(queryParams.search
           ? {
@@ -20,6 +31,8 @@ export const getRoles = async (
               },
             }
           : {}),
+        ...(queryParams.withTrashed === 0 ? { deleted_at: null } : {}),
+        ...(queryParams.withTrashed === 1 ? { deleted_at: { not: null } } : {}),
       },
       orderBy: {
         ...(queryParams.sort && queryParams.order
@@ -36,8 +49,13 @@ export const getRoles = async (
       limit: queryParams.per_page,
     });
 
+  const transformedData = data.map((role) => ({
+    ...role,
+    permissions: role.permissions.map((p) => p.permission.name),
+  }));
+
   return {
-    data,
+    data: transformedData,
     meta: convertPaginationMeta(meta, queryParams),
   };
 };

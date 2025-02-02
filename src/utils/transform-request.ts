@@ -1,9 +1,38 @@
-export const transformRequest = (searchParams: URLSearchParams) => {
-  const page = parseInt(searchParams.get("page") ?? "1");
-  const per_page = parseInt(searchParams.get("perPage") ?? "10");
-  const search = searchParams.get("search") ?? "";
-  const order = searchParams.get("order") ?? "asc";
-  const sort = searchParams.get("sort") ?? "name";
+interface DefaultParams {
+  page: number;
+  per_page: number;
+  search: string;
+  order: "asc" | "desc";
+  sort: string;
+  withTrashed: number;
+}
 
-  return { page, per_page, search, order, sort };
+export const transformRequest = <T extends Record<string, string | number>>(
+  searchParams: URLSearchParams,
+): T => {
+  const defaultParams: DefaultParams = {
+    page: 1,
+    per_page: 10,
+    search: "",
+    order: "asc",
+    sort: "name",
+    withTrashed: 0,
+  };
+
+  const result: Partial<T> = {};
+
+  searchParams.forEach((value, key) => {
+    if (key in defaultParams) {
+      const numValue = Number(value);
+      (result as Record<string, string | number>)[key] = Number.isNaN(numValue) ? value : numValue;
+    }
+  });
+
+  Object.entries(defaultParams).forEach(([key, defaultValue]) => {
+    if (!(key in result)) {
+      (result as Record<string, string | number>)[key] = defaultValue;
+    }
+  });
+
+  return result as T;
 };

@@ -12,10 +12,6 @@ type BaseFilterComponent = {
   options?: Option[]; // Options for the select filter
 };
 
-type InputFilterComponent = BaseFilterComponent & {
-  type: "input";
-};
-
 type NumberFilterComponent = BaseFilterComponent & {
   type: "number";
 };
@@ -42,7 +38,6 @@ type YearFilterComponent = BaseFilterComponent & {
 };
 
 export type TFilterItem =
-  | InputFilterComponent
   | NumberFilterComponent
   | SelectFilterComponent
   | DatepickerFilterComponent // Datepicker
