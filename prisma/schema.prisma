@@ -183,7 +183,7 @@ model InventoryItem {
   location_id        BigInt    @db.BigInt
   name               String    @db.VarChar(255)
   description        String?   @db.Text
-  price              Decimal   @db.Decimal(8, 2)
+  price              Decimal   @db.Decimal(10, 2)
   total_quantity     Int
   available_quantity Int
   loaned_quantity    Int
