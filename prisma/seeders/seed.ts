@@ -115,7 +115,7 @@ async function seedUsers(dependencies: SeedDependencies) {
       birth_date: new Date("1980-01-01"),
       gender: "MALE",
       wa_number: "081234567891",
-      nik: "1234567890123457",
+      nik: "1234567890123451",
       joined_date: new Date(),
       role_id: role.id,
       location_id: location.id,
@@ -127,7 +127,7 @@ async function seedUsers(dependencies: SeedDependencies) {
     },
   });
 
-  const user = await prisma.user.upsert({
+  const user1 = await prisma.user.upsert({
     where: { email: "testing@testing.com" },
     update: {},
     create: {
@@ -151,7 +151,31 @@ async function seedUsers(dependencies: SeedDependencies) {
     },
   });
 
-  return { head, user };
+  const user2 = await prisma.user.upsert({
+    where: { email: "testing2@example.com" },
+    update: {},
+    create: {
+      email: "testing2@example.com",
+      clerk_id: "user_2sUMmz6147ykHuHZLiMQuYFq8zt",
+      password: "@testing2123!",
+      name: "Testing User 2",
+      birth_location: "Jakarta",
+      birth_date: new Date("1990-01-01"),
+      gender: "MALE",
+      wa_number: "081234567890",
+      nik: "1234567890123457",
+      joined_date: new Date(),
+      role_id: role.id,
+      location_id: location.id,
+      department_id: department.id,
+      position_id: position.id,
+      type_id: type.id,
+      head_id: head.id,
+      level_id: null,
+    },
+  });
+
+  return { head, user1, user2 };
 }
 
 async function main() {

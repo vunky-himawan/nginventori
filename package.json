@@ -13,12 +13,11 @@
     "lint": "next lint",
     "format": "prettier --write '**/*.{ts,tsx,css,md,json}' --config ./.prettierrc",
     "db:studio": "prisma studio",
-    "db:migrate": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev --create-only",
+    "db:push": "prisma migrate deploy",
+    "db:migrate": "prisma migrate dev --create-only",
     "db:migrate:status": "prisma migrate status",
     "db:seed": "prisma db seed",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
     "test": "jest"
   },
   "dependencies": {
