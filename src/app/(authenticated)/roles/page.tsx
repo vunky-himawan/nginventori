@@ -13,7 +13,7 @@ import { makePagination, makeSource } from "@/utils/datatables/misc";
 import { ColumnDef } from "@tanstack/react-table";
 import { Role } from "@prisma/client";
 import { Eye, Pencil, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DialogDelete } from "@/app/_components/ui/dialog/delete-dialog";
 import { useDeleteRole } from "./_hooks/use-delete-role";
 import { TFilterItem } from "@/types/datatable/filter";
@@ -34,10 +34,6 @@ const RolesPage = () => {
     order: "asc",
     withTrashed: Number(filters.withTrashed),
   });
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   const columns: ColumnDef<Role>[] = [
     {

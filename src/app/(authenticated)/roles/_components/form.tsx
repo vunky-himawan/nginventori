@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { GROUP_PERMISSIONS_RAW } from "../_constants/group-permissions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -18,21 +18,20 @@ import { useGetPermissionsOptions } from "@/hooks/data/form-options/use-get-perm
 import { Loading } from "@/components/ui/loading/main";
 import { Permission } from "@prisma/client";
 import { useCallback } from "react";
-import { TCreateOrUpdateRoleValidation } from "@/server/roles/validation/create-validation";
 
-type FormProps = {
-  form: UseFormReturn<TCreateOrUpdateRoleValidation>;
-  onSubmit: (data: TCreateOrUpdateRoleValidation) => void;
+interface FormProps<T extends FieldValues> {
+  form: UseFormReturn<T>;
+  onSubmit: (data: T) => void;
   isLoading: boolean;
-};
+}
 
-const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
+const FormRole = <T extends FieldValues>({ form, onSubmit, isLoading }: FormProps<T>) => {
   const { data: permissions, isLoading: isLoadingGetPermissions } = useGetPermissionsOptions();
 
-  const handleSubmit = (data: TCreateOrUpdateRoleValidation) => {
+  const handleSubmit = (data: T) => {
     const transformedData = {
       ...data,
-      permissionIds: data.permissionIds.map((id) => Number(id)),
+      permissionIds: data.permissionIds.map((id: string) => Number(id)),
     };
 
     onSubmit(transformedData);
@@ -57,7 +56,7 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-5">
         <FormField
-          name="name"
+          name={"name" as Path<T>}
           control={form.control}
           render={({ field }) => (
             <FormItem>
@@ -70,7 +69,7 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
           )}
         />
         <FormField
-          name="permissionIds"
+          name={"permissionIds" as Path<T>}
           control={form.control}
           render={({ field }) => (
             <FormItem>
@@ -94,7 +93,8 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
 
                                   const newValue = checked
                                     ? [...(field.value || []), permissionId]
-                                    : field.value?.filter((id) => id !== permissionId) || [];
+                                    : field.value?.filter((id: number) => id !== permissionId) ||
+                                      [];
 
                                   field.onChange(newValue);
                                 }}
