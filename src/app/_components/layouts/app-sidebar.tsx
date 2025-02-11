@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Settings } from "lucide-react";
+import { BookHeart, LayoutDashboard, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -44,6 +44,12 @@ const NavBarMenus: TNavbarMenu[] = [
         label: "Roles",
         path: "/roles",
         permissions: [PERMISSIONS.VIEW_ROLES],
+      },
+      {
+        icon: <BookHeart />,
+        label: "Departments",
+        path: "/departments",
+        permissions: [PERMISSIONS.VIEW_DEPARTMENTS],
       },
     ],
   },
