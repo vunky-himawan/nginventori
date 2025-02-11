@@ -11,6 +11,11 @@ export async function permissionsSeeder() {
     { name: "delete-role" },
     { name: "show-role" },
     { name: "view-roles" },
+    { name: "create-department" },
+    { name: "update-department" },
+    { name: "delete-department" },
+    { name: "show-department" },
+    { name: "view-departments" },
   ];
 
   for (const permission of permissions) {
