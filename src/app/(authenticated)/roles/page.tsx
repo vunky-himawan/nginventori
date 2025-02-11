@@ -13,11 +13,12 @@ import { makePagination, makeSource } from "@/utils/datatables/misc";
 import { ColumnDef } from "@tanstack/react-table";
 import { Role } from "@prisma/client";
 import { Eye, Pencil, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DialogDelete } from "@/app/_components/ui/dialog/delete-dialog";
 import { useDeleteRole } from "./_hooks/use-delete-role";
 import { TFilterItem } from "@/types/datatable/filter";
 import { Badge } from "@/app/_components/ui/badge";
+import { useGetPermissionsOptions } from "@/hooks/data/form-options/use-get-permissions-options";
 
 const RolesPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -35,9 +36,7 @@ const RolesPage = () => {
     withTrashed: Number(filters.withTrashed),
   });
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  const { data: permissions, isLoading: isLoadingPermissions } = useGetPermissionsOptions();
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -49,18 +48,27 @@ const RolesPage = () => {
       accessorKey: "permissions",
       header: "Permissions",
       cell: ({ row }) => {
-        const permissions: string[] = row.getValue("permissions");
+        const userPermissions: string[] = row.getValue("permissions");
         return (
           <div className="flex flex-wrap gap-2">
-            {permissions.map((permission) => (
+            {!isLoadingPermissions && permissions.length === userPermissions.length ? (
               <Badge
                 variant={"outline"}
-                key={permission}
                 className="border border-green-300 !bg-green-100 font-medium text-green-500"
               >
-                {permission}
+                full-access
               </Badge>
-            ))}
+            ) : (
+              userPermissions.map((permission) => (
+                <Badge
+                  variant={"outline"}
+                  key={permission}
+                  className="border border-green-300 !bg-green-100 font-medium text-green-500"
+                >
+                  {permission}
+                </Badge>
+              ))
+            )}
           </div>
         );
       },

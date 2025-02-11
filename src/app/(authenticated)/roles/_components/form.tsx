@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,29 +11,29 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, Path, PathValue, UseFormReturn } from "react-hook-form";
 import { GROUP_PERMISSIONS_RAW } from "../_constants/group-permissions";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useGetPermissionsOptions } from "@/hooks/data/form-options/use-get-permissions-options";
 import { Loading } from "@/components/ui/loading/main";
 import { Permission } from "@prisma/client";
-import { useCallback } from "react";
-import { TCreateOrUpdateRoleValidation } from "@/server/roles/validation/create-validation";
 
-type FormProps = {
-  form: UseFormReturn<TCreateOrUpdateRoleValidation>;
-  onSubmit: (data: TCreateOrUpdateRoleValidation) => void;
+interface FormProps<T extends FieldValues> {
+  form: UseFormReturn<T>;
+  onSubmit: (data: T) => void;
   isLoading: boolean;
-};
+}
 
-const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
+const FormRole = <T extends FieldValues>({ form, onSubmit, isLoading }: FormProps<T>) => {
   const { data: permissions, isLoading: isLoadingGetPermissions } = useGetPermissionsOptions();
 
-  const handleSubmit = (data: TCreateOrUpdateRoleValidation) => {
+  const permissionIds = form.watch("permissionIds" as Path<T>) || [];
+
+  const handleSubmit = (data: T) => {
     const transformedData = {
       ...data,
-      permissionIds: data.permissionIds.map((id) => Number(id)),
+      permissionIds: data.permissionIds.map((id: string | number) => Number(id)),
     };
 
     onSubmit(transformedData);
@@ -53,11 +54,14 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
     return <Loading />;
   }
 
+  const isFullAccess = permissions.length > 0 && permissionIds.length === permissions.length;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-5">
+        {/* Field Name */}
         <FormField
-          name="name"
+          name={"name" as Path<T>}
           control={form.control}
           render={({ field }) => (
             <FormItem>
@@ -69,8 +73,27 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
             </FormItem>
           )}
         />
+
+        {/* Checkbox Full Access */}
+        <FormItem className="flex flex-row items-center space-x-2">
+          <Checkbox
+            id="full-access"
+            checked={isFullAccess}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                const allPermissionIds = permissions.map((p: Permission) => Number(p.id));
+                form.setValue("permissionIds" as Path<T>, allPermissionIds);
+              } else {
+                form.setValue("permissionIds" as Path<T>, [] as PathValue<T, Path<T>>);
+              }
+            }}
+          />
+          <Label htmlFor="full-access">Full Access</Label>
+        </FormItem>
+
+        {/* Field PermissionIds */}
         <FormField
-          name="permissionIds"
+          name={"permissionIds" as Path<T>}
           control={form.control}
           render={({ field }) => (
             <FormItem>
@@ -94,7 +117,9 @@ const FormRole = ({ form, onSubmit, isLoading }: FormProps) => {
 
                                   const newValue = checked
                                     ? [...(field.value || []), permissionId]
-                                    : field.value?.filter((id) => id !== permissionId) || [];
+                                    : (field.value || []).filter(
+                                        (id: number) => id !== permissionId,
+                                      );
 
                                   field.onChange(newValue);
                                 }}
