@@ -9,4 +9,12 @@ export const PERMISSIONS = {
   DELETE_ROLE: "delete-role",
   SHOW_ROLE: "show-role",
   VIEW_ROLES: "view-roles",
+
+  // department permissions
+  CREATE_DEPARTMENT: "create-department",
+  UPDATE_DEPARTMENT: "update-department",
+  DELETE_DEPARTMENT: "delete-department",
+  SHOW_DEPARTMENT: "show-department",
+  VIEW_DEPARTMENTS: "view-departments",
+  
 };
