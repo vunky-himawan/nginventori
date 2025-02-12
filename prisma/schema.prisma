@@ -8,44 +8,45 @@ datasource db {
 }
 
 model User {
-  id              BigInt          @id @default(autoincrement())
-  clerk_id        String          @unique @db.VarChar(255)
-  role_id         BigInt          @db.BigInt
-  location_id     BigInt          @db.BigInt
-  department_id   BigInt          @db.BigInt
-  position_id     BigInt          @db.BigInt
-  type_id         BigInt          @db.BigInt
-  head_id         BigInt?         @db.BigInt
-  level_id        BigInt?         @db.BigInt
-  email           String          @unique @db.VarChar(255)
-  password        String?         @db.VarChar(255)
-  name            String          @db.VarChar(255)
-  birth_location  String          @db.VarChar(255)
-  birth_date      DateTime
-  gender          Gender
-  wa_number       String          @db.VarChar(255)
-  nik             String          @unique @db.VarChar(20)
-  living_address  String?         @db.VarChar(255)
-  religion        Religion?
-  marriage_status MarriageStatus?
-  blood_type      BloodType?
-  city            String?         @db.VarChar(255)
-  province        String?         @db.VarChar(255)
-  postal_code     String?         @db.VarChar(255)
-  joined_date     DateTime
-  assessment_date DateTime?
-  resigned_date   DateTime?
-  created_at      DateTime        @default(now())
-  updated_at      DateTime        @updatedAt
-  deleted_at      DateTime?
+  id             BigInt          @id @default(autoincrement())
+  clerkId        String          @unique @map("clerk_id") @db.VarChar(255)
+  profilePicture String?         @db.VarChar(255) @map("profile_picture")
+  roleId         BigInt          @map("role_id") @db.BigInt
+  locationId     BigInt          @map("location_id") @db.BigInt
+  departmentId   BigInt          @map("department_id") @db.BigInt
+  positionId     BigInt          @map("position_id") @db.BigInt
+  typeId         BigInt          @map("type_id") @db.BigInt
+  headId         BigInt?         @map("head_id") @db.BigInt
+  levelId        BigInt?         @map("level_id") @db.BigInt
+  email          String          @unique @db.VarChar(255)
+  password       String?         @db.VarChar(255)
+  name           String          @db.VarChar(255)
+  birthLocation  String          @map("birth_location") @db.VarChar(255)
+  birthDate      DateTime        @map("birth_date")
+  gender         Gender
+  waNumber       String          @map("wa_number") @db.VarChar(255)
+  nik            String          @unique @db.VarChar(20)
+  livingAddress  String?         @map("living_address") @db.VarChar(255)
+  religion       Religion?
+  marriageStatus MarriageStatus? @map("mirrage_status")
+  bloodType      BloodType?      @map("blood_type")
+  city           String?         @db.VarChar(255)
+  province       String?         @db.VarChar(255)
+  postalCode     String?         @map("postal_code") @db.VarChar(255)
+  joinedDate     DateTime        @map("joined_date")
+  assessmentDate DateTime?       @map("assessment_date")
+  resignedDate   DateTime?       @map("resigned_date")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  deletedAt      DateTime?       @map("deleted_at")
 
-  role       Role             @relation(fields: [role_id], references: [id])
-  location   OfficeLocation   @relation(fields: [location_id], references: [id])
-  department Department       @relation(fields: [department_id], references: [id])
-  position   EmployeePosition @relation(fields: [position_id], references: [id])
-  type       EmployeeType     @relation(fields: [type_id], references: [id])
-  level      Level?           @relation(fields: [level_id], references: [id])
-  head       User?            @relation("Head", fields: [head_id], references: [id])
+  role       Role             @relation(fields: [roleId], references: [id])
+  location   OfficeLocation   @relation(fields: [locationId], references: [id])
+  department Department       @relation(fields: [departmentId], references: [id])
+  position   EmployeePosition @relation(fields: [positionId], references: [id])
+  type       EmployeeType     @relation(fields: [typeId], references: [id])
+  level      Level?           @relation(fields: [levelId], references: [id])
+  head       User?            @relation("Head", fields: [headId], references: [id])
 
   subordinates            User[]                       @relation("Head")
   activityLogs            ActivityLog[]
@@ -61,32 +62,32 @@ model User {
 }
 
 model ActivityLog {
-  id           BigInt   @id @default(autoincrement())
-  actor_id     BigInt   @db.BigInt
-  log_name     String   @db.VarChar(255)
-  description  String   @db.VarChar(255)
-  subject_type String   @db.VarChar(255)
-  action       Action
-  properties   Json
-  created_at   DateTime @default(now())
+  id          BigInt   @id @default(autoincrement())
+  actorId     BigInt   @map("actor_id") @db.BigInt
+  logName     String   @map("log_name") @db.VarChar(255)
+  description String   @db.VarChar(255)
+  subjectType String   @map("subject_type") @db.VarChar(255)
+  action      Action
+  properties  Json?
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  actor User @relation(fields: [actor_id], references: [id])
+  actor User @relation(fields: [actorId], references: [id])
 
   @@map("activity_logs")
 }
 
 model Role {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users       User[]
   permissions RoleHasPermission[]
 
+  @@index([name, deletedAt])
   @@map("roles")
-  @@index([name, deleted_at])
 }
 
 model Permission {
@@ -99,154 +100,154 @@ model Permission {
 }
 
 model RoleHasPermission {
-  role_id       BigInt
-  permission_id BigInt
+  roleId       BigInt @map("role_id")
+  permissionId BigInt @map("permission_id")
 
-  role       Role       @relation(fields: [role_id], references: [id])
-  permission Permission @relation(fields: [permission_id], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
 
-  @@id([role_id, permission_id])
+  @@id([roleId, permissionId])
   @@map("role_has_permissions")
 }
 
 model EmployeePosition {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users User[]
 
+  @@index([name, deletedAt])
   @@map("employee_positions")
-  @@index([name, deleted_at])
 }
 
 model EmployeeType {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users User[]
 
+  @@index([name, deletedAt])
   @@map("employee_types")
-  @@index([name, deleted_at])
 }
 
 model Department {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users              User[]
   inventoryLocations InventoryLocation[]
 
+  @@index([name, deletedAt])
   @@map("departments")
-  @@index([name, deleted_at])
 }
 
 model Level {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  min_period Int
-  max_period Int
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  minPeriod Int       @map("min_period")
+  maxPeriod Int       @map("max_period")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users User[]
 
+  @@index([name, deletedAt])
   @@map("levels")
-  @@index([name, deleted_at])
 }
 
 model OfficeLocation {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   users              User[]
   inventoryLocations InventoryLocation[]
 
+  @@index([name, deletedAt])
   @@map("office_locations")
-  @@index([name, deleted_at])
 }
 
 model InventoryItem {
-  id                 BigInt    @id @default(autoincrement())
-  location_id        BigInt    @db.BigInt
-  name               String    @db.VarChar(255)
-  description        String?   @db.Text
-  price              Decimal   @db.Decimal(10, 2)
-  total_quantity     Int
-  available_quantity Int
-  loaned_quantity    Int
-  damaged_quantity   Int
-  lost_quantity      Int
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  deleted_at         DateTime?
+  id                BigInt    @id @default(autoincrement())
+  locationId        BigInt    @map("location_id") @db.BigInt
+  name              String    @db.VarChar(255)
+  description       String?   @db.Text
+  price             Decimal   @db.Decimal(10, 2)
+  totalQuantity     Int       @map("total_quantity")
+  availableQuantity Int       @map("available_quantity")
+  loanedQuantity    Int       @map("loaned_quantity")
+  damagedQuantity   Int       @map("damaged_quantity")
+  lostQuantity      Int       @map("lost_quantity")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
 
-  location InventoryLocation @relation(fields: [location_id], references: [id])
+  location InventoryLocation @relation(fields: [locationId], references: [id])
 
   categories         InventoryItemHasInventoryCategory[]
   inventoryItemUnits InventoryItemUnit[]
   responsibilities   InventoryResponsibility[]
 
+  @@unique([locationId, name])
   @@map("inventory_items")
-  @@unique([location_id, name])
 }
 
 model InventoryCategory {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @db.VarChar(255)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   inventoryItems InventoryItemHasInventoryCategory[]
 
+  @@index([name, deletedAt])
   @@map("inventory_categories")
-  @@index([name, deleted_at])
 }
 
 model InventoryItemHasInventoryCategory {
-  inventory_item_id     BigInt
-  inventory_category_id BigInt
+  inventoryItemId     BigInt @map("inventory_item_id")
+  inventoryCategoryId BigInt @map("inventory_category_id")
 
-  inventoryItem     InventoryItem     @relation(fields: [inventory_item_id], references: [id])
-  inventoryCategory InventoryCategory @relation(fields: [inventory_category_id], references: [id])
+  inventoryItem     InventoryItem     @relation(fields: [inventoryItemId], references: [id])
+  inventoryCategory InventoryCategory @relation(fields: [inventoryCategoryId], references: [id])
 
-  @@id([inventory_item_id, inventory_category_id])
+  @@id([inventoryItemId, inventoryCategoryId])
   @@map("inventory_items_has_inventory_categories")
 }
 
 model InventoryResponsibility {
-  inventory_item_id   BigInt
-  responsible_user_id BigInt
+  inventoryItemId   BigInt @map("inventory_item_id")
+  responsibleUserId BigInt @map("responsible_user_id")
 
-  inventoryItem   InventoryItem @relation(fields: [inventory_item_id], references: [id])
-  responsibleUser User          @relation(fields: [responsible_user_id], references: [id])
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  responsibleUser User          @relation(fields: [responsibleUserId], references: [id])
 
-  @@id([inventory_item_id, responsible_user_id])
+  @@id([inventoryItemId, responsibleUserId])
   @@map("inventory_responsibilities")
 }
 
 model InventoryMaintenance {
-  id         BigInt            @id @default(autoincrement())
-  start_date DateTime
-  end_date   DateTime
-  note       String?           @db.Text
-  status     MaintenanceStatus
-  created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
-  deleted_at DateTime?
+  id        BigInt            @id @default(autoincrement())
+  startDate DateTime          @map("start_date")
+  endDate   DateTime          @map("end_date")
+  note      String?           @db.Text
+  status    MaintenanceStatus
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  deletedAt DateTime?         @map("deleted_at")
 
   inventoryMaintenanceDetails InventoryMaintenanceDetail[]
 
@@ -254,16 +255,16 @@ model InventoryMaintenance {
 }
 
 model InventoryItemUnit {
-  id                BigInt                  @id @default(autoincrement())
-  inventory_item_id BigInt                  @db.BigInt
-  serial_number     String                  @unique
-  status            InventoryItemUnitStatus
-  barcode           String?                 @db.VarChar(255)
-  created_at        DateTime                @default(now())
-  updated_at        DateTime                @updatedAt
-  deleted_at        DateTime?
+  id              BigInt                  @id @default(autoincrement())
+  inventoryItemId BigInt                  @map("inventory_item_id") @db.BigInt
+  serialNumber    String                  @unique @map("serial_number")
+  status          InventoryItemUnitStatus
+  barcode         String?                 @db.VarChar(255)
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+  deletedAt       DateTime?               @map("deleted_at")
 
-  inventoryItem InventoryItem @relation(fields: [inventory_item_id], references: [id])
+  inventoryItem InventoryItem @relation(fields: [inventoryItemId], references: [id])
 
   inventoryMaintenanceDetails InventoryMaintenanceDetail[]
   loanDetails                 InventoryLoanDetail[]
@@ -272,47 +273,47 @@ model InventoryItemUnit {
 }
 
 model InventoryMaintenanceDetail {
-  inventory_maintenance_id BigInt
-  inventory_item_unit_id   BigInt
-  maintenance_person_id    BigInt
+  inventoryMaintenanceId BigInt @map("inventory_maintenance_id")
+  inventoryItemUnitId    BigInt @map("inventory_item_unit_id")
+  maintenancePersonId    BigInt @map("maintenance_person_id")
 
-  inventoryMaintenance InventoryMaintenance @relation(fields: [inventory_maintenance_id], references: [id])
-  inventoryItemUnit    InventoryItemUnit    @relation(fields: [inventory_item_unit_id], references: [id])
-  maintenancePerson    User                 @relation(fields: [maintenance_person_id], references: [id])
+  inventoryMaintenance InventoryMaintenance @relation(fields: [inventoryMaintenanceId], references: [id])
+  inventoryItemUnit    InventoryItemUnit    @relation(fields: [inventoryItemUnitId], references: [id])
+  maintenancePerson    User                 @relation(fields: [maintenancePersonId], references: [id])
 
-  @@id([inventory_maintenance_id, inventory_item_unit_id, maintenance_person_id])
+  @@id([inventoryMaintenanceId, inventoryItemUnitId, maintenancePersonId])
   @@map("inventory_maintenance_details")
 }
 
 model InventoryLocation {
-  id                 BigInt    @id @default(autoincrement())
-  office_location_id BigInt    @db.BigInt
-  department_id      BigInt    @db.BigInt
-  name               String    @db.VarChar(255)
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  deleted_at         DateTime?
+  id               BigInt    @id @default(autoincrement())
+  officeLocationId BigInt    @map("office_location_id") @db.BigInt
+  departmentId     BigInt    @map("department_id") @db.BigInt
+  name             String    @db.VarChar(255)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
 
-  location   OfficeLocation @relation(fields: [office_location_id], references: [id])
-  department Department     @relation(fields: [department_id], references: [id])
+  location   OfficeLocation @relation(fields: [officeLocationId], references: [id])
+  department Department     @relation(fields: [departmentId], references: [id])
 
   inventoryItems InventoryItem[]
   monthlyReports InventoryMonthlyReport[]
 
+  @@index([name, deletedAt])
   @@map("inventory_locations")
-  @@index([name, deleted_at])
 }
 
 model InventoryLoan {
-  id             BigInt     @id @default(autoincrement())
-  loan_person_id BigInt     @db.BigInt
-  loan_date      DateTime
-  return_date    DateTime
-  note           String?    @db.Text
-  status         LoanStatus
-  created_at     DateTime   @default(now())
-  updated_at     DateTime   @updatedAt
-  deleted_at     DateTime?
+  id           BigInt     @id @default(autoincrement())
+  loanPersonId BigInt     @map("loan_person_id") @db.BigInt
+  loanDate     DateTime   @map("loan_date")
+  returnDate   DateTime   @map("return_date")
+  note         String?    @db.Text
+  status       LoanStatus
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  deletedAt    DateTime?  @map("deleted_at")
 
   loanDetails InventoryLoanDetail[]
 
@@ -320,51 +321,51 @@ model InventoryLoan {
 }
 
 model InventoryLoanDetail {
-  inventory_loan_id      BigInt
-  inventory_item_unit_id BigInt
+  inventoryLoanId     BigInt @map("inventory_loan_id")
+  inventoryItemUnitId BigInt @map("inventory_item_unit_id")
 
-  inventoryLoan     InventoryLoan     @relation(fields: [inventory_loan_id], references: [id])
-  inventoryItemUnit InventoryItemUnit @relation(fields: [inventory_item_unit_id], references: [id])
+  inventoryLoan     InventoryLoan     @relation(fields: [inventoryLoanId], references: [id])
+  inventoryItemUnit InventoryItemUnit @relation(fields: [inventoryItemUnitId], references: [id])
 
-  @@id([inventory_loan_id, inventory_item_unit_id])
+  @@id([inventoryLoanId, inventoryItemUnitId])
   @@map("inventory_loan_details")
 }
 
 model InventoryReport {
-  id                     BigInt     @id @default(autoincrement())
-  inventory_item_unit_id BigInt     @db.BigInt
-  reported_by            BigInt     @db.BigInt
-  report_type            ReportType
-  report                 String?    @db.Text
-  created_at             DateTime   @default(now())
-  updated_at             DateTime   @updatedAt
-  deleted_at             DateTime?
+  id                  BigInt     @id @default(autoincrement())
+  inventoryItemUnitId BigInt     @map("inventory_item_unit_id") @db.BigInt
+  reportedBy          BigInt     @map("reported_by") @db.BigInt
+  reportType          ReportType @map("report_type")
+  report              String?    @db.Text
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
+  deletedAt           DateTime?  @map("deleted_at")
 
-  reporter User @relation(fields: [reported_by], references: [id])
+  reporter User @relation(fields: [reportedBy], references: [id])
 
   @@map("inventory_reports")
 }
 
 model InventoryMonthlyReport {
-  id                     BigInt              @id @default(autoincrement())
-  submitted_by           BigInt              @db.BigInt
-  audited_by             BigInt              @db.BigInt
-  inventory_locations_id BigInt              @db.BigInt
-  report_date            DateTime
-  total_items            Int
-  available_items        Int
-  loaned_items           Int
-  damaged_items          Int
-  maintained_items       Int
-  lost_items             Int
-  status                 MonthlyReportStatus
-  created_at             DateTime            @default(now())
-  updated_at             DateTime            @updatedAt
-  deleted_at             DateTime?
+  id                   BigInt              @id @default(autoincrement())
+  submittedBy          BigInt              @map("submitted_by") @db.BigInt
+  auditedBy            BigInt              @map("audited_by") @db.BigInt
+  inventoryLocationsId BigInt              @map("inventory_locations_id") @db.BigInt
+  reportDate           DateTime            @map("report_date")
+  totalItems           Int                 @map("total_items")
+  availableItems       Int                 @map("available_items")
+  loanedItems          Int                 @map("loaned_items")
+  damagedItems         Int                 @map("damaged_items")
+  maintainedItems      Int                 @map("maintained_items")
+  lostItems            Int                 @map("lost_items")
+  status               MonthlyReportStatus
+  createdAt            DateTime            @default(now()) @map("created_at")
+  updatedAt            DateTime            @updatedAt @map("updated_at")
+  deletedAt            DateTime?           @map("deleted_at")
 
-  submittedBy        User              @relation("SubmittedBy", fields: [submitted_by], references: [id])
-  auditedBy          User              @relation("AuditedBy", fields: [audited_by], references: [id])
-  inventoryLocations InventoryLocation @relation(fields: [inventory_locations_id], references: [id])
+  inventoryMonthlyReportSubmittedBy User              @relation("SubmittedBy", fields: [submittedBy], references: [id])
+  inventoryMonthlyReportAuditedBy   User              @relation("AuditedBy", fields: [auditedBy], references: [id])
+  inventoryLocations                InventoryLocation @relation(fields: [inventoryLocationsId], references: [id])
 
   inventoryAudits InventoryAudit[]
 
@@ -372,17 +373,17 @@ model InventoryMonthlyReport {
 }
 
 model InventoryAudit {
-  id                BigInt      @id @default(autoincrement())
-  monthly_report_id BigInt      @db.BigInt
-  audited_by        BigInt      @db.BigInt
-  audit_date        DateTime
-  findings          String?     @db.Text
-  status            AuditStatus
-  created_at        DateTime    @default(now())
-  updated_at        DateTime    @updatedAt
+  id              BigInt      @id @default(autoincrement())
+  monthlyReportId BigInt      @map("monthly_report_id") @db.BigInt
+  auditedBy       BigInt      @map("audited_by") @db.BigInt
+  auditDate       DateTime    @map("audit_date")
+  findings        String?     @db.Text
+  status          AuditStatus
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
 
-  monthlyReport InventoryMonthlyReport @relation(fields: [monthly_report_id], references: [id])
-  auditedBy     User                   @relation(fields: [audited_by], references: [id])
+  monthlyReport      InventoryMonthlyReport @relation(fields: [monthlyReportId], references: [id])
+  inventoryAuditedBy User                   @relation(fields: [auditedBy], references: [id])
 
   submissions AuditSubmission[]
 
@@ -390,16 +391,16 @@ model InventoryAudit {
 }
 
 model AuditSubmission {
-  id                 BigInt   @id @default(autoincrement())
-  inventory_audit_id BigInt   @db.BigInt
-  submitted_to       BigInt   @db.BigInt
-  submission_date    DateTime
-  notes              String?  @db.Text
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  id               BigInt   @id @default(autoincrement())
+  inventoryAuditId BigInt   @map("inventory_audit_id") @db.BigInt
+  submittedTo      BigInt   @map("submitted_to") @db.BigInt
+  submissionDate   DateTime @map("submissions_date")
+  notes            String?  @db.Text
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  inventoryAudit InventoryAudit @relation(fields: [inventory_audit_id], references: [id])
-  submittedTo    User           @relation(fields: [submitted_to], references: [id])
+  inventoryAudit   InventoryAudit @relation(fields: [inventoryAuditId], references: [id])
+  auditSubmittedTo User           @relation(fields: [submittedTo], references: [id])
 
   @@map("audit_submissions")
 }

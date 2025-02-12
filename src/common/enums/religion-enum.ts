@@ -1,4 +1,4 @@
-export enum Religion {
+export enum RELIGION_ENUM {
   ISLAM = "ISLAM",
   CHRISTIAN = "CHRISTIAN",
   HINDU = "HINDU",

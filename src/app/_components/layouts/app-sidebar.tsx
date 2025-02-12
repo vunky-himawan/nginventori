@@ -1,6 +1,6 @@
 "use client";
 
-import { BookHeart, LayoutDashboard, Settings } from "lucide-react";
+import { BookHeart, LayoutDashboard, Settings, FileClock } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -50,6 +50,12 @@ const NavBarMenus: TNavbarMenu[] = [
         label: "Departments",
         path: "/departments",
         permissions: [PERMISSIONS.VIEW_DEPARTMENTS],
+      },
+      {
+        icon: <FileClock />,
+        label: "Activity Logs",
+        path: "/activity-logs",
+        permissions: [PERMISSIONS.VIEW_ACTIVITY_LOGS],
       },
     ],
   },

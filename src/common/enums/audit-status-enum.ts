@@ -1,4 +1,4 @@
-export enum AuditStatus {
+export enum AUDIT_STATUS_ENUM {
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   REVIEW_REQUIRED = "REVIEW_REQUIRED",

@@ -16,5 +16,8 @@ export const PERMISSIONS = {
   DELETE_DEPARTMENT: "delete-department",
   SHOW_DEPARTMENT: "show-department",
   VIEW_DEPARTMENTS: "view-departments",
-  
+
+  // activity log permissions
+  VIEW_ACTIVITY_LOGS: "view-activity-log",
+  SHOW_ACTIVITY_LOG: "show-activity-log",
 };

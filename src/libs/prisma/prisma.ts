@@ -14,6 +14,14 @@ const globalThisWithPrisma = globalThis as typeof globalThis & {
 
 const prisma = globalThisWithPrisma.prisma ?? prismaClientSingleton();
 
+export const prismaWithTrashed = prisma.$extends(
+  pagination({
+    pages: {
+      includePageCount: true,
+    },
+  }),
+);
+
 const prismaWithExtensions = prisma
   .$extends(
     pagination({
@@ -29,7 +37,7 @@ const prismaWithExtensions = prisma
         Role: true,
       },
       defaultConfig: {
-        field: "deleted_at",
+        field: "deletedAt",
         createValue: (deleted) => {
           if (deleted) return new Date();
           return null;

@@ -40,4 +40,17 @@ export const GROUP_PERMISSIONS_RAW: TPermissionOptions[] = [
       },
     ],
   },
+  {
+    label: "Activity Logs",
+    permissionOptions: [
+      {
+        label: "Show Activity Log",
+        value: PERMISSIONS.SHOW_ACTIVITY_LOG,
+      },
+      {
+        label: "View Activity Logs",
+        value: PERMISSIONS.VIEW_ACTIVITY_LOGS,
+      },
+    ],
+  },
 ];

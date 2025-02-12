@@ -1,5 +1,5 @@
 export type TPaginateRequest = {
-  per_page: number;
+  perPage: number;
   page: number;
 };
 

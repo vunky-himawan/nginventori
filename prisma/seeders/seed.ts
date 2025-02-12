@@ -13,7 +13,7 @@ interface SeedDependencies {
 
 async function seedLocation() {
   const location = await prisma.officeLocation.findFirst({
-    where: { name: "Jakarta", deleted_at: null },
+    where: { name: "Jakarta", deletedAt: null },
   });
 
   if (location) {
@@ -29,7 +29,7 @@ async function seedLocation() {
 
 async function seedDepartment() {
   const department = await prisma.department.findFirst({
-    where: { name: "Engineering", deleted_at: null },
+    where: { name: "Engineering", deletedAt: null },
   });
 
   if (department) {
@@ -45,7 +45,7 @@ async function seedDepartment() {
 
 async function seedPosition() {
   const position = await prisma.employeePosition.findFirst({
-    where: { name: "Software Engineer", deleted_at: null },
+    where: { name: "Software Engineer", deletedAt: null },
   });
 
   if (position) {
@@ -61,7 +61,7 @@ async function seedPosition() {
 
 async function seedEmployeeType() {
   const type = await prisma.employeeType.findFirst({
-    where: { name: "Full-time", deleted_at: null },
+    where: { name: "Full-time", deletedAt: null },
   });
 
   if (type) {
@@ -90,7 +90,7 @@ async function seedRole() {
         name: "Administrator",
         permissions: {
           create: permissions.map((permission) => ({
-            permission_id: permission.id,
+            permissionId: permission.id,
           })),
         },
       },
@@ -109,21 +109,21 @@ async function seedUsers(dependencies: SeedDependencies) {
     create: {
       email: "head@company.com",
       password: "hashedPassword",
-      clerk_id: "user_1rFSRFbbTMZ8ziZE5BioGIyq6Ye",
+      clerkId: "user_1rFSRFbbTMZ8ziZE5BioGIyq6Ye",
       name: "Head User",
-      birth_location: "Jakarta",
-      birth_date: new Date("1980-01-01"),
+      birthLocation: "Jakarta",
+      birthDate: new Date("1980-01-01"),
       gender: "MALE",
-      wa_number: "081234567891",
+      waNumber: "081234567891",
       nik: "1234567890123451",
-      joined_date: new Date(),
-      role_id: role.id,
-      location_id: location.id,
-      department_id: department.id,
-      position_id: position.id,
-      type_id: type.id,
-      head_id: null,
-      level_id: null,
+      joinedDate: new Date(),
+      roleId: role.id,
+      locationId: location.id,
+      departmentId: department.id,
+      positionId: position.id,
+      typeId: type.id,
+      headId: null,
+      levelId: null,
     },
   });
 
@@ -132,22 +132,22 @@ async function seedUsers(dependencies: SeedDependencies) {
     update: {},
     create: {
       email: "testing@testing.com",
-      clerk_id: "user_2rFSRFbbTMZ8ziZE5BioGIyq6Ye",
+      clerkId: "user_2rFSRFbbTMZ8ziZE5BioGIyq6Ye",
       password: "akuntesting123",
       name: "Testing User",
-      birth_location: "Jakarta",
-      birth_date: new Date("1990-01-01"),
+      birthLocation: "Jakarta",
+      birthDate: new Date("1990-01-01"),
       gender: "MALE",
-      wa_number: "081234567890",
+      waNumber: "081234567890",
       nik: "1234567890123456",
-      joined_date: new Date(),
-      role_id: role.id,
-      location_id: location.id,
-      department_id: department.id,
-      position_id: position.id,
-      type_id: type.id,
-      head_id: head.id,
-      level_id: null,
+      joinedDate: new Date(),
+      roleId: role.id,
+      locationId: location.id,
+      departmentId: department.id,
+      positionId: position.id,
+      typeId: type.id,
+      headId: head.id,
+      levelId: null,
     },
   });
 
@@ -156,22 +156,22 @@ async function seedUsers(dependencies: SeedDependencies) {
     update: {},
     create: {
       email: "testing2@example.com",
-      clerk_id: "user_2sUMmz6147ykHuHZLiMQuYFq8zt",
+      clerkId: "user_2sUMmz6147ykHuHZLiMQuYFq8zt",
       password: "@testing2123!",
       name: "Testing User 2",
-      birth_location: "Jakarta",
-      birth_date: new Date("1990-01-01"),
+      birthLocation: "Jakarta",
+      birthDate: new Date("1990-01-01"),
       gender: "MALE",
-      wa_number: "081234567890",
+      waNumber: "081234567890",
       nik: "1234567890123457",
-      joined_date: new Date(),
-      role_id: role.id,
-      location_id: location.id,
-      department_id: department.id,
-      position_id: position.id,
-      type_id: type.id,
-      head_id: head.id,
-      level_id: null,
+      joinedDate: new Date(),
+      roleId: role.id,
+      locationId: location.id,
+      departmentId: department.id,
+      positionId: position.id,
+      typeId: type.id,
+      headId: head.id,
+      levelId: null,
     },
   });
 

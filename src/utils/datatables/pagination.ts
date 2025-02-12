@@ -7,8 +7,8 @@ export const convertPaginationMeta = (
 ): TPaginationMeta => {
   return {
     page: meta.currentPage,
-    perPage: queryParam.per_page,
+    perPage: queryParam.perPage,
     total: meta.totalCount,
-    totalPage: Math.ceil(meta.totalCount / queryParam.per_page),
+    totalPage: Math.ceil(meta.totalCount / queryParam.perPage),
   };
 };

@@ -1,6 +1,6 @@
 interface DefaultParams {
   page: number;
-  per_page: number;
+  perPage: number;
   search: string;
   order: "asc" | "desc";
   sort: string;
@@ -12,7 +12,7 @@ export const transformRequest = <T extends Record<string, string | number>>(
 ): T => {
   const defaultParams: DefaultParams = {
     page: 1,
-    per_page: 10,
+    perPage: 10,
     search: "",
     order: "asc",
     sort: "name",
