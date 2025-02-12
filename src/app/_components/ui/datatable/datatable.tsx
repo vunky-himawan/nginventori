@@ -33,7 +33,7 @@ interface DataTableProps<TData, TValue> {
   };
   pagination: {
     page: number;
-    per_page: number;
+    perPage: number;
   };
 }
 
@@ -49,9 +49,9 @@ const Datatable = <TData, TValue>({
   pagination,
 }: DataTableProps<TData, TValue>) => {
   const pageCount = useMemo(() => {
-    if (!source?.meta?.total || !pagination.per_page) return 0;
-    return Math.ceil(source.meta.total / pagination.per_page);
-  }, [source?.meta?.total, pagination.per_page]);
+    if (!source?.meta?.total || !pagination.perPage) return 0;
+    return Math.ceil(source.meta.total / pagination.perPage);
+  }, [source?.meta?.total, pagination.perPage]);
 
   const table = useReactTable({
     data: source?.data || [],
@@ -60,7 +60,7 @@ const Datatable = <TData, TValue>({
     state: {
       pagination: {
         pageIndex: pagination.page,
-        pageSize: pagination.per_page,
+        pageSize: pagination.perPage,
       },
     },
     getCoreRowModel: getCoreRowModel(),

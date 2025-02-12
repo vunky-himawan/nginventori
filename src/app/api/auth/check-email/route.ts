@@ -10,6 +10,11 @@ import InternalServerErrorException from "@/errors/InternalServerErrorException"
 import UnauthorizedException from "@/errors/UnauthorizedException";
 import { RedirectResponse } from "@/responses/redirect-response";
 import { PERMISSIONS } from "@/common/enums/permissions";
+import {
+  getLatestLoginActivityLog,
+  getLatestLogoutActivityLog,
+} from "@/server/activity-logs/repository/activity-logs-repository";
+import { createLoginActivityLogAction } from "@/server/activity-logs/action/activity-logs-action";
 
 const client = await clerkClient();
 
@@ -38,6 +43,17 @@ export const GET = async () => {
     }
 
     const userWithPermissions = await getUserWithPermissionsAction(userId);
+
+    const latestLoginActivityLog = await getLatestLoginActivityLog(userId);
+    const latestLogoutActivityLog = await getLatestLogoutActivityLog(userId);
+
+    if (
+      !latestLoginActivityLog ||
+      (latestLogoutActivityLog &&
+        latestLogoutActivityLog.createdAt > latestLoginActivityLog.createdAt)
+    ) {
+      await createLoginActivityLogAction();
+    }
 
     if (userWithPermissions.permissions.includes(PERMISSIONS.DASHBOARD_ADMIN)) {
       return RedirectResponse.permanent(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);

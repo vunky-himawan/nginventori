@@ -41,13 +41,13 @@ const DepartmentPage = () => {
             <TableRow>
               <TableHead className="w-fit font-bold">Created At</TableHead>
               <TableCell>
-                {data?.created_at && formatedDate(new Date(data.created_at), true)}
+                {data?.createdAt && formatedDate(new Date(data.createdAt), true)}
               </TableCell>
             </TableRow>
             <TableRow>
               <TableHead className="w-fit font-bold">Updated At</TableHead>
               <TableCell>
-                {data?.updated_at && formatedDate(new Date(data.updated_at), true)}
+                {data?.updatedAt && formatedDate(new Date(data.updatedAt), true)}
               </TableCell>
             </TableRow>
           </TableBody>

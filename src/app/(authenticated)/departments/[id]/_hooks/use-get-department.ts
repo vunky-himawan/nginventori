@@ -1,9 +1,10 @@
 import { api } from "@/libs/axios/axios";
 import { extractJsonData } from "@/utils/extract-json-data";
+import { Department } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetDepartment = (id: number) => {
-  return useQuery({
+  return useQuery<Department>({
     queryKey: ["department", id],
     queryFn: async () => {
       const response = await api.get(`/departments/${id}`);

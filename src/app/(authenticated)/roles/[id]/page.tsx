@@ -8,7 +8,6 @@ import { PERMISSIONS } from "@/common/enums/permissions";
 import { useParams } from "next/navigation";
 import { useGetRole } from "./_hooks/use-get-role";
 import { formatedDate } from "@/utils/date-formatter";
-import { Permission } from "@prisma/client";
 import { Badge } from "@/app/_components/ui/badge";
 
 const RolePage = () => {
@@ -43,8 +42,12 @@ const RolePage = () => {
             <TableRow>
               <TableHead className="w-fit font-bold">Permissions</TableHead>
               <TableCell className="flex h-max flex-wrap gap-3">
-                {data?.permissions.map((permission: Permission) => (
-                  <Badge className="w-max" variant={"outline"} key={permission.id}>
+                {data?.permissions.map((permission) => (
+                  <Badge
+                    variant={"outline"}
+                    key={permission.id}
+                    className="w-max border border-green-300 !bg-green-100 font-medium text-green-500"
+                  >
                     {permission.name}
                   </Badge>
                 ))}
@@ -53,13 +56,13 @@ const RolePage = () => {
             <TableRow>
               <TableHead className="w-fit font-bold">Created At</TableHead>
               <TableCell>
-                {data?.created_at && formatedDate(new Date(data.created_at), true)}
+                {data?.createdAt && formatedDate(new Date(data.createdAt), true)}
               </TableCell>
             </TableRow>
             <TableRow>
               <TableHead className="w-fit font-bold">Updated At</TableHead>
               <TableCell>
-                {data?.updated_at && formatedDate(new Date(data.updated_at), true)}
+                {data?.updatedAt && formatedDate(new Date(data.updatedAt), true)}
               </TableCell>
             </TableRow>
           </TableBody>

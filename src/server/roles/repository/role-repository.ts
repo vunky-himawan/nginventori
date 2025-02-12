@@ -1,15 +1,14 @@
 import { TIndexQueryParam } from "@/types/index-query-param";
 import { TPaginationResponse } from "@/types/meta";
-import { Prisma, Role } from "@prisma/client";
-import prisma from "@/libs/prisma/prisma";
+import { Role } from "@prisma/client";
+import prisma, { prismaWithTrashed } from "@/libs/prisma/prisma";
 import { convertPaginationMeta } from "@/utils/datatables/pagination";
 import { TCreateOrUpdateRoleValidation } from "../validation/create-validation";
-import BadRequestException from "@/errors/BadRequestException";
 
 export const getRoles = async (
   queryParams: TIndexQueryParam,
 ): Promise<TPaginationResponse<Role[]>> => {
-  const [data, meta] = await prisma.role
+  const [data, meta] = await prismaWithTrashed.role
     .paginate({
       include: {
         permissions: {
@@ -31,8 +30,7 @@ export const getRoles = async (
               },
             }
           : {}),
-        ...(queryParams.withTrashed === 0 ? { deleted_at: null } : {}),
-        ...(queryParams.withTrashed === 1 ? { deleted_at: { not: null } } : {}),
+        deletedAt: null,
       },
       orderBy: {
         ...(queryParams.sort && queryParams.order
@@ -40,13 +38,13 @@ export const getRoles = async (
               [queryParams.sort]: queryParams.order,
             }
           : {
-              created_at: "desc",
+              createdAt: "desc",
             }),
       },
     })
     .withPages({
       page: queryParams.page,
-      limit: queryParams.per_page,
+      limit: queryParams.perPage,
     });
 
   const transformedData = data.map((role) => ({
@@ -61,53 +59,23 @@ export const getRoles = async (
 };
 
 export const createRole = async (data: TCreateOrUpdateRoleValidation) => {
-  const existingRole = await prisma.role.findFirst({
-    where: {
+  return await prisma.role.create({
+    data: {
       name: data.name,
-      deleted_at: null,
-    },
-  });
-
-  if (existingRole) {
-    throw new BadRequestException("A role with this name already exists");
-  }
-
-  try {
-    const role = await prisma.role.create({
-      data: {
-        name: data.name,
-      },
-    });
-
-    if (data.permissionIds && data.permissionIds.length > 0) {
-      await prisma.roleHasPermission.createMany({
-        data: data.permissionIds.map((permissionId) => ({
-          role_id: role.id,
-          permission_id: permissionId,
+      permissions: {
+        create: data.permissionIds.map((permissionId) => ({
+          permission: { connect: { id: permissionId } },
         })),
-      });
-    }
-
-    const roleWithPermissions = await prisma.role.findUnique({
-      where: { id: role.id },
-      include: {
-        permissions: {
-          include: {
-            permission: true,
-          },
+      },
+    },
+    include: {
+      permissions: {
+        include: {
+          permission: true,
         },
       },
-    });
-
-    return roleWithPermissions;
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        throw new BadRequestException("A role with this name already exists");
-      }
-    }
-    throw error;
-  }
+    },
+  });
 };
 
 export const getRole = async (id: number) => {
@@ -136,49 +104,64 @@ export const getRole = async (id: number) => {
 };
 
 export const updateRole = async (id: number, data: TCreateOrUpdateRoleValidation) => {
-  await prisma.role.update({
-    where: { id },
-    data: { name: data.name },
-  });
-
-  if (data.permissionIds) {
-    await prisma.roleHasPermission.deleteMany({
-      where: { role_id: id },
+  return await prisma.$transaction(async (prisma) => {
+    await prisma.role.update({
+      where: { id },
+      data: { name: data.name },
     });
 
-    if (data.permissionIds.length > 0) {
-      await prisma.roleHasPermission.createMany({
-        data: data.permissionIds.map((permissionId) => ({
-          role_id: id,
-          permission_id: permissionId,
-        })),
+    if (data.permissionIds) {
+      await prisma.roleHasPermission.deleteMany({
+        where: { roleId: id },
       });
+
+      if (data.permissionIds.length > 0) {
+        await prisma.roleHasPermission.createMany({
+          data: data.permissionIds.map((permissionId) => ({
+            roleId: id,
+            permissionId: permissionId,
+          })),
+        });
+      }
     }
-  }
 
-  const roleWithPermissions = await prisma.role.findUnique({
-    where: { id },
-    include: { permissions: { include: { permission: true } } },
+    return await prisma.role.findFirstOrThrow({
+      where: { id },
+      include: { permissions: { include: { permission: true } } },
+    });
   });
-
-  return roleWithPermissions;
 };
 
 export const deleteRole = async (id: number) => {
-  try {
-    const userCount = await prisma.user.count({ where: { role_id: id } });
+  const roleToDelete = await prisma.role.findUnique({
+    where: { id },
+    include: { permissions: true },
+  });
 
-    if (userCount > 0) {
-      throw new BadRequestException("Cannot delete role because it is used by users");
-    }
+  await prisma.$transaction(async (tx) => {
+    await tx.roleHasPermission.deleteMany({ where: { roleId: id } });
+    await tx.role.delete({ where: { id } });
+  });
 
-    await prisma.$transaction(async (tx) => {
-      await tx.roleHasPermission.deleteMany({ where: { role_id: id } });
-      await tx.role.delete({ where: { id } });
-    });
+  return roleToDelete;
+};
 
-    return true;
-  } catch (error) {
-    throw error;
-  }
+export const isRoleNameExists = async (name: string) => {
+  const role = await prisma.role.findFirst({
+    where: {
+      name: name,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !!role;
+};
+
+export const isRoleUsedByUsers = async (id: number) => {
+  const userCount = await prisma.user.count({ where: { roleId: id } });
+
+  return userCount > 0;
 };

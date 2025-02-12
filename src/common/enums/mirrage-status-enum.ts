@@ -1,4 +1,4 @@
-export enum MarriageStatus {
+export enum MIRRAGE_STATUS_ENUM {
   MARRIED = "MARRIED",
   SINGLE = "SINGLE",
   WIDOW = "WIDOW",

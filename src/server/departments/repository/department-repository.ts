@@ -2,9 +2,7 @@
 
 import prisma from "@/libs/prisma/prisma";
 import { TCreateOrUpdateDepartmentValidation } from "../validation/create-update-validation";
-import BadRequestException from "@/errors/BadRequestException";
-import { Department, Prisma } from "@prisma/client";
-import { PrismaError } from "@/common/enums/prisma-error-enum";
+import { Department } from "@prisma/client";
 import { TIndexQueryParam } from "@/types/index-query-param";
 import { TPaginationResponse } from "@/types/meta";
 import { convertPaginationMeta } from "@/utils/datatables/pagination";
@@ -23,8 +21,8 @@ export const getDepartments = async (
               },
             }
           : {}),
-        ...(queryParams.withTrashed === 0 ? { deleted_at: null } : {}),
-        ...(queryParams.withTrashed === 1 ? { deleted_at: { not: null } } : {}),
+        ...(queryParams.withTrashed === 1 ? {} : { deletedAt: null }),
+        ...(queryParams.withTrashed === 2 ? { deletedAt: { not: null } } : {}),
       },
       orderBy: {
         ...(queryParams.sort && queryParams.order
@@ -32,13 +30,13 @@ export const getDepartments = async (
               [queryParams.sort]: queryParams.order,
             }
           : {
-              created_at: "desc",
+              createdAt: "desc",
             }),
       },
     })
     .withPages({
       page: queryParams.page,
-      limit: queryParams.per_page,
+      limit: queryParams.perPage,
     });
   return {
     data,
@@ -47,64 +45,54 @@ export const getDepartments = async (
 };
 
 export const createDepartment = async (data: TCreateOrUpdateDepartmentValidation) => {
-  const existingDepartment = await prisma.department.findFirst({
-    where: {
+  return await prisma.department.create({
+    data: {
       name: data.name,
-      deleted_at: null,
     },
   });
-
-  if (existingDepartment) {
-    throw new BadRequestException("A department with this name already exists");
-  }
-
-  try {
-    return await prisma.department.create({
-      data: {
-        name: data.name,
-      },
-    });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === PrismaError.P2002) {
-        throw new BadRequestException("A department with this name already exists");
-      }
-    }
-    throw error;
-  }
 };
 
 export const getDepartment = async (id: number) => {
-  const department = await prisma.department.findUnique({
+  return await prisma.department.findUnique({
     where: { id },
   });
-  if (!department) return null;
-
-  return {
-    ...department,
-  };
 };
 
 export const updateDepartment = async (id: number, data: TCreateOrUpdateDepartmentValidation) => {
-  await prisma.department.update({
+  return await prisma.department.update({
     where: { id },
     data: {
       name: data.name,
     },
   });
-  return await prisma.department.findUnique({ where: { id } });
 };
 
 export const deleteDepartment = async (id: number) => {
-  try {
-    const userCount = await prisma.user.count({ where: { department_id: id } });
+  const departmentToDelete = await prisma.department.findUnique({
+    where: { id },
+  });
 
-    if (userCount > 0) {
-      throw new BadRequestException("Cannot delete department with users");
-    }
+  await prisma.department.delete({ where: { id } });
 
-    return await prisma.department.delete({ where: { id } });
-  } catch (error) {
-    throw error;
-  }
+  return departmentToDelete;
+};
+
+export const isDepartmentNameExists = async (name: string) => {
+  const role = await prisma.department.findFirst({
+    where: {
+      name: name,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return !!role;
+};
+
+export const isDepartmentUsedByUsers = async (id: number) => {
+  const userCount = await prisma.user.count({ where: { departmentId: id } });
+
+  return userCount > 0;
 };

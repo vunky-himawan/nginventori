@@ -35,6 +35,7 @@ CREATE TYPE "AuditStatus" AS ENUM ('APPROVED', 'REJECTED', 'REVIEW_REQUIRED');
 CREATE TABLE "users" (
     "id" BIGSERIAL NOT NULL,
     "clerk_id" VARCHAR(255) NOT NULL,
+    "profile_picture" VARCHAR(255),
     "role_id" BIGINT NOT NULL,
     "location_id" BIGINT NOT NULL,
     "department_id" BIGINT NOT NULL,
@@ -52,7 +53,7 @@ CREATE TABLE "users" (
     "nik" VARCHAR(20) NOT NULL,
     "living_address" VARCHAR(255),
     "religion" "Religion",
-    "marriage_status" "MarriageStatus",
+    "mirrage_status" "MarriageStatus",
     "blood_type" "BloodType",
     "city" VARCHAR(255),
     "province" VARCHAR(255),
@@ -75,7 +76,7 @@ CREATE TABLE "activity_logs" (
     "description" VARCHAR(255) NOT NULL,
     "subject_type" VARCHAR(255) NOT NULL,
     "action" "Action" NOT NULL,
-    "properties" JSONB NOT NULL,
+    "properties" JSONB,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "activity_logs_pkey" PRIMARY KEY ("id")
@@ -338,7 +339,7 @@ CREATE TABLE "audit_submissions" (
     "id" BIGSERIAL NOT NULL,
     "inventory_audit_id" BIGINT NOT NULL,
     "submitted_to" BIGINT NOT NULL,
-    "submission_date" TIMESTAMP(3) NOT NULL,
+    "submissions_date" TIMESTAMP(3) NOT NULL,
     "notes" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

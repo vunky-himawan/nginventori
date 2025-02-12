@@ -17,6 +17,7 @@ import { TFilterItem } from "@/types/datatable/filter";
 import { useGetDepartments } from "./_hooks/use-get-department";
 import { makePagination, makeSource } from "@/utils/datatables/misc";
 import { useDeleteDepartment } from "./_hooks/use-delete-department";
+import { formatedDate } from "@/utils/date-formatter";
 
 const DepartmentPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -30,7 +31,7 @@ const DepartmentPage = () => {
     search: filters.search?.toString() || "",
     sort: "name",
     order: "asc",
-    withTrashed: Number(filters.withTrashed),
+    withTrashed: Number(filters.withTrashed) || 0,
   });
 
   const columns: ColumnDef<Department>[] = [
@@ -45,14 +46,22 @@ const DepartmentPage = () => {
       cell: ({ row }) => <div className="w-[100px]">{row.getValue("name")}</div>,
     },
     {
-      accessorKey: "created_at",
+      accessorKey: "createdAt",
       header: "Created At",
-      cell: ({ row }) => <div className="w-[100px]">{row.getValue("created_at")}</div>,
+      cell: ({ row }) => (
+        <div className="w-max">
+          {row.getValue("createdAt") ? formatedDate(new Date(row.getValue("createdAt")), true) : ""}
+        </div>
+      ),
     },
     {
-      accessorKey: "updated_at",
+      accessorKey: "updatedAt",
       header: "Updated At",
-      cell: ({ row }) => <div className="w-[100px]">{row.getValue("updated_at")}</div>,
+      cell: ({ row }) => (
+        <div className="w-max">
+          {row.getValue("updatedAt") ? formatedDate(new Date(row.getValue("updatedAt")), true) : ""}
+        </div>
+      ),
     },
     {
       id: "actions",

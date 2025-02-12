@@ -1,4 +1,4 @@
-export enum MonthlyReportStatus {
+export enum MONTHLY_REPORT_STATUS_ENUM {
   PENDING = "PENDING",
   AUDITED = "AUDITED",
 }

@@ -1,4 +1,4 @@
-export enum InventoryItemUnitStatus {
+export enum INVENTORY_ITEM_UNIT_STATUS_ENUM {
   AVAILABLE = "AVAILABLE",
   LOANED = "LOANED",
   DAMAGED = "DAMAGED",

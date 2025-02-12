@@ -9,10 +9,23 @@ export const getUserByEmail = async (email: string) => {
   });
 };
 
+export const getUserByClerkId = async (clerkId: string) => {
+  return prisma.user.findUnique({
+    where: {
+      clerkId,
+    },
+    select: {
+      name: true,
+      email: true,
+      profilePicture: true,
+    },
+  });
+};
+
 export const getUserWithPermissions = async (clerkId: string) => {
   const user = await prisma.user.findFirst({
     where: {
-      clerk_id: clerkId,
+      clerkId: clerkId,
     },
   });
 
@@ -22,7 +35,7 @@ export const getUserWithPermissions = async (clerkId: string) => {
 
   const permissions = await prisma.roleHasPermission.findMany({
     where: {
-      role_id: user.role_id,
+      roleId: user.roleId,
     },
     include: {
       permission: true,

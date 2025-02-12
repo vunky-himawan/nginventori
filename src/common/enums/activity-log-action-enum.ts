@@ -1,4 +1,4 @@
-export enum Action {
+export enum ACTIVITY_LOG_ACTION_ENUM {
   CREATE = "CREATE",
   UPDATE = "UPDATE",
   DELETE = "DELETE",

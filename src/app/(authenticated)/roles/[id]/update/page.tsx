@@ -12,7 +12,6 @@ import {
 } from "@/server/roles/validation/create-validation";
 import { useParams } from "next/navigation";
 import { useGetRole } from "../_hooks/use-get-role";
-import { Permission } from "@prisma/client";
 import { useUpdateRole } from "./_hooks/use-update-role";
 import { Section } from "@/app/_components/ui/section";
 import { useEffect } from "react";
@@ -35,7 +34,7 @@ const UpdateRolePage = () => {
     if (data) {
       form.reset({
         name: data.name,
-        permissionIds: data.permissions.map((p: Permission) => Number(p.id)),
+        permissionIds: data.permissions.map((p) => Number(p.id)),
       });
     }
   }, [data, form]);

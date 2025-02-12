@@ -31,7 +31,7 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
       const params = new URLSearchParams(searchParams.toString());
 
       params.forEach((_, key) => {
-        if (!(key in newParams) && !["page", "per_page"].includes(key)) {
+        if (!(key in newParams) && !["page", "perPage"].includes(key)) {
           params.delete(key);
         }
       });
@@ -40,7 +40,6 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
         if (value === undefined || value === "") {
           params.delete(key);
         } else {
-          console.log(key, value);
           const stringValue = String(value);
           if (validateQueryParam(stringValue)) {
             params.set(key, encodeQueryParam(stringValue));
@@ -57,7 +56,7 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
   const debouncedSearch = useRef(
     debounce((value: string) => {
       setFilters((prev) => ({ ...prev, search: value }));
-      updateUrl({ search: value, page: 1, per_page: 10 });
+      updateUrl({ search: value, page: 1, perPage: 10 });
     }, 500),
   ).current;
 
@@ -66,15 +65,15 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
       onFilterChange: (newFilters: Record<string, string | number | undefined>) => {
         console.log("newFilters", newFilters);
         setFilters((prev) => ({ ...prev, ...newFilters }));
-        updateUrl({ ...newFilters, page: 1, per_page: 10 });
+        updateUrl({ ...newFilters, page: 1, perPage: 10 });
       },
       onSortingChange: (sortKey: string, order: "asc" | "desc") => {
         setFilters((prev) => ({ ...prev, sort: sortKey, order }));
-        updateUrl({ sort: sortKey, order, page: 1, per_page: 10 });
+        updateUrl({ sort: sortKey, order, page: 1, perPage: 10 });
       },
       onPaginationChange: (page: number, perPage: number) => {
-        setFilters((prev) => ({ ...prev, page, per_page: perPage }));
-        updateUrl({ page, per_page: perPage });
+        setFilters((prev) => ({ ...prev, page, perPage: perPage }));
+        updateUrl({ page, perPage: perPage });
       },
       onSearch: (searchTerm: string) => {
         setSearchInput(searchTerm);
@@ -98,7 +97,7 @@ export const useTableFilter = ({ searchParams }: { searchParams: URLSearchParams
   const pagination = useMemo(
     () => ({
       page: Number(filters.page) || 1,
-      per_page: Number(filters.per_page) || 10,
+      perPage: Number(filters.perPage) || 10,
     }),
     [filters],
   );

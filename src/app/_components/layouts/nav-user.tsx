@@ -18,9 +18,38 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useGetAuthMe } from "@/hooks/data/use-get-auth-me";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { getNameInitials } from "@/utils/get-initial-name";
+import { toast } from "../ui/toast/main";
+import { useLogout } from "@/hooks/data/use-logout";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
+  const { signOut } = useAuth();
+  const { user } = useUser();
+  const { data } = useGetAuthMe();
+
+  const { mutate: logout } = useLogout();
+
+  const handleLogout = async () => {
+    const results = await Promise.allSettled([signOut(), logout()]);
+
+    const failed = results.filter((result) => result.status === "rejected");
+
+    if (failed.length > 0) {
+      toast({
+        title: "Failed to logout completely, please try again",
+        type: "error",
+      });
+      return;
+    }
+
+    toast({
+      title: "Logged out successfully",
+      type: "success",
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -32,12 +61,16 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage />
-                <AvatarFallback className="rounded-lg">SN</AvatarFallback>
+                <AvatarImage src={data?.profilePicture || user?.imageUrl || undefined} />
+                <AvatarFallback className="rounded-lg">
+                  {getNameInitials(data?.name || user?.fullName || undefined)}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Testing</span>
-                <span className="truncate text-xs">testing@gmail.com</span>
+                <span className="truncate font-semibold">{data?.name || user?.fullName}</span>
+                <span className="truncate text-xs">
+                  {data?.email || user?.emailAddresses[0]?.emailAddress}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -51,12 +84,16 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage />
-                  <AvatarFallback className="rounded-lg">SN</AvatarFallback>
+                  <AvatarImage src={data?.profilePicture || user?.imageUrl || undefined} />
+                  <AvatarFallback className="rounded-lg">
+                    {getNameInitials(data?.name || user?.fullName)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Testing</span>
-                  <span className="truncate text-xs">testing@gmail.com</span>
+                  <span className="truncate font-semibold">{data?.name || user?.fullName}</span>
+                  <span className="truncate text-xs">
+                    {data?.email || user?.emailAddresses[0]?.emailAddress}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -76,7 +113,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
