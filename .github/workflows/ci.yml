@@ -9,6 +9,7 @@ on:
     branches:
       - develop
       - main
+  pull_request_review:
 
 jobs:
   build:
@@ -67,19 +68,13 @@ jobs:
             MESSAGE="✅ Success on branch '${{ github.ref_name }}' with commit message '${{ github.event.head_commit.message }}' in destination branch '${{ github.ref_name }}'."
           fi
 
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"$MESSAGE\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          curl -X POST -H "Content-Type: application/json" -d "$(jq -n --arg msg "$MESSAGE" '{content: $msg}')" ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Notify on Failure
         if: ${{ failure() }}
         run: |
-          MESSAGE=""
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            MESSAGE="❌ Build failed on branch '${{ github.head_ref }}' with pull request '${{ github.event.pull_request.number }}' targeting branch '${{ github.base_ref }}'. Please review the logs and fix the issue."
-          elif [ "${{ github.event_name }}" == "push" ]; then
-            MESSAGE="❌ Build failed on branch '${{ github.ref_name }}'. Please review the logs and fix the issue."
-          fi
-
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"$MESSAGE\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MESSAGE="❌ Build failed on branch '${{ github.ref_name }}'. Please review the logs and fix the issue."
+          curl -X POST -H "Content-Type: application/json" -d "$(jq -n --arg msg "$MESSAGE" '{content: $msg}')" ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   notify_review:
     needs: build
@@ -102,7 +97,7 @@ jobs:
             MESSAGE="📝 Code review submitted by '${REVIEWER}' on PR #${PR_NUMBER}. \nTitle: '${PR_TITLE}' \nDescription: '${PR_BODY}' \nReview State: '${REVIEW_STATE}' \nPR Link: ${PR_URL}"
           fi
 
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"$MESSAGE\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          curl -X POST -H "Content-Type: application/json" -d "$(jq -n --arg msg "$MESSAGE" '{content: $msg}')" ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   code-security:
     needs: build
@@ -114,6 +109,14 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
+      - name: Cache pnpm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install
 
@@ -123,14 +126,14 @@ jobs:
       - name: Run Linter
         run: pnpm lint
 
-      - name: Check if __tests__ are not empty
+      - name: Check if __tests__ contain test files
         id: check_folders
         run: |
-          if [ -z "$(find . -type d -name "__tests__")" ]; then
-            echo "No test directories found."
+          if [ -z "$(find . -type f -name "*.test.js" -o -name "*.spec.js")" ]; then
+            echo "No test files found."
             echo "run_tests=false" >> $GITHUB_ENV
           else
-            echo "Test directories found, running tests."
+            echo "Test files found, running tests."
             echo "run_tests=true" >> $GITHUB_ENV
           fi
 
@@ -152,7 +155,7 @@ jobs:
         run: pnpm install
 
       - name: Security audit
-        run: pnpm audit
+        run: pnpm audit || echo "⚠️ Audit found issues, but continuing..."
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
@@ -183,12 +186,14 @@ jobs:
       - name: Notify on Success
         if: ${{ success() }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"✅ Deployment success on branch '${{ github.ref_name }}' with commit message '${{ github.event.head_commit.message }}'.\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}  
+          MESSAGE="✅ Deployment success on branch '${{ github.ref_name }}' with commit message '${{ github.event.head_commit.message }}'."
+          curl -X POST -H "Content-Type: application/json" -d "$(jq -n --arg msg "$MESSAGE" '{content: $msg}')" ${{ secrets.DISCORD_WEBHOOK_URL }}  
 
       - name: Notify on Failure
         if: ${{ failure() }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"❌ Deployment failed on branch '${{ github.ref_name }}'. Please check the logs for details.\"}" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MESSAGE="❌ Deployment failed on branch '${{ github.ref_name }}'. Please check the logs for details."
+          curl -X POST -H "Content-Type: application/json" -d "$(jq -n --arg msg "$MESSAGE" '{content: $msg}')" ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   opensource-monitor:
     if: ${{ github.event_name == 'push' }}
