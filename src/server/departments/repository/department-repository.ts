@@ -78,7 +78,7 @@ export const deleteDepartment = async (id: number) => {
 };
 
 export const isDepartmentNameExists = async (name: string) => {
-  const role = await prisma.department.findFirst({
+  const department = await prisma.department.findFirst({
     where: {
       name: name,
       deletedAt: null,
@@ -88,7 +88,7 @@ export const isDepartmentNameExists = async (name: string) => {
     },
   });
 
-  return !!role;
+  return !!department;
 };
 
 export const isDepartmentUsedByUsers = async (id: number) => {

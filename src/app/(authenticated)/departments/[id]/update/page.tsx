@@ -57,6 +57,7 @@ const UpdateDepartmentPage = () => {
       path: `/departments/${id}/update`,
     },
   ];
+  
   return (
     <Guard allowedPermissions={[PERMISSIONS.UPDATE_DEPARTMENT]} type="page">
       <Page title="Update Department" isLoading={isFetching} breadcrumbs={breadcrumbs}>
