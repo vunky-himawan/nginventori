@@ -49,7 +49,6 @@ export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.pathname.split("/").pop();
     if (isNaN(Number(id))) throw new BadRequestException("Invalid Employee Position ID");
-    console.log(id);
     const data = await deleteEmployeePositionAction(Number(id));
 
     return new SuccessResponse(data, "Employee Position Deleted Succesfully");

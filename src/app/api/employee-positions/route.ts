@@ -16,9 +16,9 @@ export const GET = async (req: NextRequest) => {
     
     const transformedRequest = transformRequest<TIndexQueryParam>(searchParams);
     
-    const EmployeePositions = await getEmployeePositionsAction(transformedRequest);
+    const employeePositions = await getEmployeePositionsAction(transformedRequest);
     
-    return new SuccessResponse(EmployeePositions, "Succes");
+    return new SuccessResponse(employeePositions, "Succes");
   } catch {
     return new InternalServerErrorException("Internal Server Error");
   }
