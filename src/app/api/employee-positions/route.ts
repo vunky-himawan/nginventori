@@ -18,7 +18,7 @@ export const GET = async (req: NextRequest) => {
     
     const employeePositions = await getEmployeePositionsAction(transformedRequest);
     
-    return new SuccessResponse(employeePositions, "Succes");
+    return new SuccessResponse(employeePositions, "Success");
   } catch {
     return new InternalServerErrorException("Internal Server Error");
   }
