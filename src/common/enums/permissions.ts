@@ -17,6 +17,13 @@ export const PERMISSIONS = {
   SHOW_DEPARTMENT: "show-department",
   VIEW_DEPARTMENTS: "view-departments",
 
+  // employee position permissions
+  CREATE_EMPLOYEE_POSITION: "create-employee-position",
+  UPDATE_EMPLOYEE_POSITION: "update-employee-position",
+  DELETE_EMPLOYEE_POSITION: "delete-employee-position",
+  SHOW_EMPLOYEE_POSITION: "show-employee-position",
+  VIEW_EMPLOYEE_POSITIONS: "view-employee",
+
   // activity log permissions
   VIEW_ACTIVITY_LOGS: "view-activity-log",
   SHOW_ACTIVITY_LOG: "show-activity-log",

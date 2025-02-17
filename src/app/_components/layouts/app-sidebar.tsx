@@ -57,6 +57,12 @@ const NavBarMenus: TNavbarMenu[] = [
         path: "/activity-logs",
         permissions: [PERMISSIONS.VIEW_ACTIVITY_LOGS],
       },
+      {
+        icon: <Settings />,
+        label: "Employee Positions",
+        path: "/employee-positions",
+        permissions: [PERMISSIONS.VIEW_EMPLOYEE_POSITIONS],
+      },
     ],
   },
 ];
