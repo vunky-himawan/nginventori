@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useUpdateEmployeePosition } from "./_hooks/use-update-employee-position";
 import { Section } from "@/app/_components/ui/section";
-import FormDepartment from "@/app/(authenticated)/departments/_components/form";
+import FormEmployeePosition from "../../_components/form";
 
 const EmployeePositionPage = () => {
   const { id } = useParams();
@@ -62,7 +62,7 @@ const EmployeePositionPage = () => {
     <Guard allowedPermissions={[PERMISSIONS.UPDATE_EMPLOYEE_POSITION]} type="page">
       <Page title="Update Employee Position" isLoading={isFetching} breadcrumbs={breadcrumbs}>
         <Section>
-          <FormDepartment form={form} onSubmit={onSubmit} isLoading={isPending} />
+          <FormEmployeePosition form={form} onSubmit={onSubmit} isLoading={isPending} />
         </Section>
       </Page>
     </Guard>
