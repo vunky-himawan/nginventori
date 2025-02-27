@@ -27,4 +27,11 @@ export const PERMISSIONS = {
   // activity log permissions
   VIEW_ACTIVITY_LOGS: "view-activity-log",
   SHOW_ACTIVITY_LOG: "show-activity-log",
+
+  // employee type permissions
+  CREATE_EMPLOYEE_TYPE: "create-employee-type",
+  UPDATE_EMPLOYEE_TYPE: "update-employee-type",
+  DELETE_EMPLOYEE_TYPE: "delete-employee-tyoe",
+  SHOW_EMPLOYEE_TYPE: "show-employee-type",
+  VIEW_EMPLOYEE_TYPES: "view-employee",
 };

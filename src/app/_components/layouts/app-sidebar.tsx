@@ -63,6 +63,12 @@ const NavBarMenus: TNavbarMenu[] = [
         path: "/employee-positions",
         permissions: [PERMISSIONS.VIEW_EMPLOYEE_POSITIONS],
       },
+      {
+        icon: <Settings />,
+        label: "Employee Types",
+        path: "/employee-types",
+        permissions: [PERMISSIONS.VIEW_EMPLOYEE_TYPES],
+      },
     ],
   },
 ];
