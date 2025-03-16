@@ -34,4 +34,11 @@ export const PERMISSIONS = {
   DELETE_EMPLOYEE_TYPE: "delete-employee-tyoe",
   SHOW_EMPLOYEE_TYPE: "show-employee-type",
   VIEW_EMPLOYEE_TYPES: "view-employee",
+
+  // office location permissions
+  CREATE_OFFICE_LOCATION: "create-office-location",
+  UPDATE_OFFICE_LOCATION: "update-office-location",
+  DELETE_OFFICE_LOCATION: "delete-office-location",
+  SHOW_OFFICE_LOCATION: "show-office-location",
+  VIEW_OFFICE_LOCATIONS: "view-office-locations",
 };

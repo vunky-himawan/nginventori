@@ -69,6 +69,12 @@ const NavBarMenus: TNavbarMenu[] = [
         path: "/employee-types",
         permissions: [PERMISSIONS.VIEW_EMPLOYEE_TYPES],
       },
+      {
+        icon: <Settings />,
+        label: "Office Locations",
+        path: "/office-locations",
+        permissions: [PERMISSIONS.VIEW_OFFICE_LOCATIONS],
+      }
     ],
   },
 ];
